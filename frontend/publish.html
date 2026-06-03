@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布商品</title>
+    <style>
+        /* 页面基础样式：和首页、详情页保持一致 */
+        body {
+            margin: 0;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+            background-color: #f5f7fb;
+            color: #222;
+        }
+
+        /* 主体容器：限制最大宽度，让表单不要铺满整个屏幕 */
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        h1 {
+            margin: 0 0 18px;
+            font-size: 28px;
+        }
+
+        /* 顶部按钮区域 */
+        .top-bar {
+            margin-bottom: 18px;
+        }
+
+        .back-button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            background-color: #2563eb;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* 表单卡片：和详情页卡片风格保持一致 */
+        .form-card {
+            background-color: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 22px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            border: 1px solid #d7dce5;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            background-color: #fff;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 12px 0;
+            border: none;
+            border-radius: 6px;
+            background-color: #16a34a;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .submit-button:hover {
+            background-color: #15803d;
+        }
+
+        .submit-button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* 状态提示文字，比如发布成功、发布失败 */
+        .message {
+            margin: 12px 0;
+            color: #666;
+        }
+
+        .message.success {
+            color: #15803d;
+        }
+
+        .message.error {
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <div class="top-bar">
+            <button id="backButton" class="back-button" type="button">返回首页</button>
+        </div>
+
+        <h1>发布商品</h1>
+
+        <form id="publishForm" class="form-card">
+            <div class="form-group">
+                <label for="titleInput">商品标题</label>
+                <input id="titleInput" type="text" placeholder="例如：九成新台灯" required>
+            </div>
+
+            <div class="form-group">
+                <label for="descriptionInput">商品描述</label>
+                <textarea id="descriptionInput" placeholder="简单描述商品情况、购买时间、是否有瑕疵等" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="priceInput">价格</label>
+                <input id="priceInput" type="number" min="0" step="0.01" placeholder="例如：29.90" required>
+            </div>
+
+            <div class="form-group">
+                <label for="categoryInput">分类</label>
+                <input id="categoryInput" type="text" placeholder="例如：数码、教材、宿舍用品" required>
+            </div>
+
+            <div class="form-group">
+                <label for="conditionInput">成色</label>
+                <input id="conditionInput" type="text" placeholder="例如：全新、九成新、八成新" required>
+            </div>
+
+            <div class="form-group">
+                <label for="wechatInput">卖家微信</label>
+                <input id="wechatInput" type="text" placeholder="请输入方便买家联系的微信号" required>
+            </div>
+
+            <button id="submitButton" class="submit-button" type="submit">发布商品</button>
+        </form>
+
+        <p id="message" class="message"></p>
+    </main>
+
+    <script>
+        // 后端接口基础地址，后端 Spring Boot 默认运行在 8080 端口
+        const API_BASE_URL = "http://localhost:8080";
+
+        // 获取页面上的元素，提交表单时会读取这些输入框的值
+        const backButton = document.getElementById("backButton");
+        const publishForm = document.getElementById("publishForm");
+        const submitButton = document.getElementById("submitButton");
+        const message = document.getElementById("message");
+        const titleInput = document.getElementById("titleInput");
+        const descriptionInput = document.getElementById("descriptionInput");
+        const priceInput = document.getElementById("priceInput");
+        const categoryInput = document.getElementById("categoryInput");
+        const conditionInput = document.getElementById("conditionInput");
+        const wechatInput = document.getElementById("wechatInput");
+
+        // 点击“返回首页”按钮，跳回商品列表页
+        backButton.addEventListener("click", function () {
+            window.location.href = "index.html";
+        });
+
+        // 监听表单提交事件；submit 事件会在点击“发布商品”时触发
+        publishForm.addEventListener("submit", function (event) {
+            // 阻止浏览器默认提交表单，改为用 fetch 发送 JSON 请求
+            event.preventDefault();
+            publishProduct();
+        });
+
+        // 发布商品：POST http://localhost:8080/products
+        async function publishProduct() {
+            // 这里的字段名要和后端 Product 实体中的属性名保持一致
+            const product = {
+                title: titleInput.value.trim(),
+                description: descriptionInput.value.trim(),
+                price: Number(priceInput.value),
+                category: categoryInput.value.trim(),
+                conditionLevel: conditionInput.value.trim(),
+                contactWechat: wechatInput.value.trim()
+            };
+
+            // 前端做一个简单校验，避免空内容直接发给后端
+            if (!product.title || !product.description || !product.category || !product.conditionLevel || !product.contactWechat) {
+                showMessage("请把商品信息填写完整。", "error");
+                return;
+            }
+
+            if (Number.isNaN(product.price) || product.price < 0) {
+                showMessage("请输入正确的商品价格。", "error");
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = "正在发布...";
+            showMessage("正在发布商品...", "");
+
+            try {
+                const response = await fetch(API_BASE_URL + "/products", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(product)
+                });
+
+                if (!response.ok) {
+                    showMessage("商品发布失败，请稍后重试。", "error");
+                    return;
+                }
+
+                showMessage("商品发布成功", "success");
+
+                // 等 1 秒再跳转，让用户能看到成功提示
+                setTimeout(function () {
+                    window.location.href = "index.html";
+                }, 1000);
+            } catch (error) {
+                showMessage("商品发布失败，请确认后端服务已经启动。", "error");
+                console.error("请求 POST /products 失败：", error);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = "发布商品";
+            }
+        }
+
+        // 显示提示信息，type 可以是 success、error 或空字符串
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = "message";
+
+            if (type) {
+                message.classList.add(type);
+            }
+        }
+    </script>
+</body>
+</html>

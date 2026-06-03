@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tod.campusmarketbackend.mapper.ProductMapper">
+
+    <resultMap id="ProductResultMap" type="com.tod.campusmarketbackend.entity.Product">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="description" property="description"/>
+        <result column="price" property="price"/>
+        <result column="category" property="category"/>
+        <result column="condition_level" property="conditionLevel"/>
+        <result column="contact_wechat" property="contactWechat"/>
+        <result column="status" property="status"/>
+        <result column="created_time" property="createdTime"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="ProductResultMap">
+        SELECT *
+        FROM product
+        WHERE status = 'ON_SALE'
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="findById" resultMap="ProductResultMap">
+        SELECT *
+        FROM product
+        WHERE id = #{id}
+        AND status = 'ON_SALE'
+    </select>
+
+    <insert id="insert" parameterType="com.tod.campusmarketbackend.entity.Product">
+        INSERT INTO product
+        (title, description, price, category, condition_level, contact_wechat, status, created_time)
+        VALUES
+        (#{title}, #{description}, #{price}, #{category}, #{conditionLevel}, #{contactWechat}, #{status}, #{createdTime})
+    </insert>
+
+    <update id="offlineById">
+        UPDATE product
+        SET status = 'OFFLINE'
+        WHERE id = #{id}
+    </update>
+
+    <select id="search" resultMap="ProductResultMap">
+        SELECT *
+        FROM product
+        WHERE status = 'ON_SALE'
+
+        <if test="keyword != null and keyword != ''">
+            AND (title LIKE CONCAT('%', #{keyword}, '%')
+            OR description LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+
+        <if test="category != null and category != ''">
+            AND category = #{category}
+        </if>
+
+        ORDER BY created_time DESC
+    </select>
+
+</mapper>

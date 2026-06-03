@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品详情</title>
+    <style>
+        /* 页面基础样式：和首页保持一样的字体、背景色 */
+        body {
+            margin: 0;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+            background-color: #f5f7fb;
+            color: #222;
+        }
+
+        /* 主体容器：限制页面最大宽度，让详情页在大屏幕上更好看 */
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        h1 {
+            margin: 0 0 18px;
+            font-size: 28px;
+        }
+
+        /* 返回按钮区域 */
+        .top-bar {
+            margin-bottom: 18px;
+        }
+
+        .back-button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            background-color: #2563eb;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* 状态提示文字，比如加载中、id 不存在、请求失败 */
+        .message {
+            margin: 12px 0;
+            color: #666;
+        }
+
+        /* 详情卡片：和首页商品卡片保持相近的视觉风格 */
+        .detail-card {
+            background-color: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 22px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .product-title {
+            margin: 0 0 10px;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .product-price {
+            margin: 0 0 18px;
+            color: #dc2626;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .info-row {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .info-label {
+            width: 90px;
+            flex: none;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .info-value {
+            flex: 1;
+            color: #333;
+            word-break: break-word;
+        }
+
+        .description {
+            white-space: pre-wrap;
+        }
+
+        .offline-button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px 0;
+            border: none;
+            border-radius: 6px;
+            background-color: #dc2626;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .offline-button:hover {
+            background-color: #b91c1c;
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <div class="top-bar">
+            <button id="backButton" class="back-button" type="button">返回首页</button>
+        </div>
+
+        <h1>商品详情</h1>
+
+        <p id="message" class="message">正在加载商品详情...</p>
+
+        <!-- JavaScript 会把商品详情插入到这个卡片中 -->
+        <section id="detailCard" class="detail-card"></section>
+
+        <button id="offlineButton" class="offline-button" type="button">下架商品</button>
+    </main>
+
+    <script>
+        // 后端接口基础地址，后端 Spring Boot 默认运行在 8080 端口
+        const API_BASE_URL = "http://localhost:8080";
+
+        // 获取页面上的元素，后面渲染数据时会用到
+        const backButton = document.getElementById("backButton");
+        const message = document.getElementById("message");
+        const detailCard = document.getElementById("detailCard");
+        const offlineButton = document.getElementById("offlineButton");
+
+        // 默认先隐藏“下架商品”按钮，等商品详情加载成功后再显示
+        offlineButton.style.display = "none";
+
+        // 点击“返回首页”按钮，跳回商品列表页
+        backButton.addEventListener("click", function () {
+            window.location.href = "index.html";
+        });
+
+        // URLSearchParams 可以读取地址栏中的查询参数，比如 detail.html?id=1
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get("id");
+
+        // 如果地址栏没有 id，就不请求后端，直接提示用户
+        if (!productId) {
+            message.textContent = "地址中没有商品 id，请从首页点击“查看详情”进入。";
+            detailCard.style.display = "none";
+        } else {
+            loadProductDetail(productId);
+        }
+
+        // 点击“下架商品”按钮，调用后端 PUT /products/{id}/offline 接口
+        offlineButton.addEventListener("click", function () {
+            offlineProduct(productId);
+        });
+
+        // 根据商品 id 请求详情：GET http://localhost:8080/products/{id}
+        async function loadProductDetail(id) {
+            message.textContent = "正在加载商品详情...";
+            detailCard.innerHTML = "";
+
+            try {
+                const response = await fetch(API_BASE_URL + "/products/" + id);
+
+                // 如果后端返回 404、500 等状态码，这里给出更友好的提示
+                if (!response.ok) {
+                    message.textContent = "商品详情加载失败，请确认商品 id 是否存在。";
+                    detailCard.style.display = "none";
+                    return;
+                }
+
+                const product = await response.json();
+                renderProductDetail(product);
+            } catch (error) {
+                message.textContent = "商品详情加载失败，请确认后端服务已经启动。";
+                detailCard.style.display = "none";
+                console.error("请求 /products/{id} 失败：", error);
+            }
+        }
+
+        // 把后端返回的商品对象显示到页面上
+        function renderProductDetail(product) {
+            if (!product) {
+                message.textContent = "没有找到商品详情。";
+                detailCard.style.display = "none";
+                return;
+            }
+
+            message.textContent = "";
+            detailCard.style.display = "block";
+            offlineButton.style.display = "block";
+
+            const title = document.createElement("h2");
+            title.className = "product-title";
+            title.textContent = product.title || "未命名商品";
+
+            const price = document.createElement("p");
+            price.className = "product-price";
+            price.textContent = "￥" + (product.price ?? "0");
+
+            detailCard.appendChild(title);
+            detailCard.appendChild(price);
+            detailCard.appendChild(createInfoRow("分类", product.category || "未填写"));
+            detailCard.appendChild(createInfoRow("成色", product.conditionLevel || "未填写"));
+            detailCard.appendChild(createInfoRow("描述", product.description || "暂无描述", "description"));
+            detailCard.appendChild(createInfoRow("卖家微信", product.contactWechat || "未填写"));
+            detailCard.appendChild(createInfoRow("发布时间", formatTime(product.createdTime)));
+        }
+
+        // 下架商品：PUT http://localhost:8080/products/{id}/offline
+        async function offlineProduct(id) {
+            const confirmed = confirm("确定要下架这个商品吗？");
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+                const response = await fetch(API_BASE_URL + "/products/" + id + "/offline", {
+                    method: "PUT"
+                });
+
+                if (!response.ok) {
+                    message.textContent = "商品下架失败，请稍后重试。";
+                    return;
+                }
+
+                alert("商品下架成功");
+                window.location.href = "index.html";
+            } catch (error) {
+                message.textContent = "商品下架失败，请确认后端服务已经启动。";
+                console.error("请求 PUT /products/{id}/offline 失败：", error);
+            }
+        }
+
+        // 创建一行详情信息，比如“分类：数码”
+        function createInfoRow(labelText, valueText, extraClassName) {
+            const row = document.createElement("div");
+            row.className = "info-row";
+
+            const label = document.createElement("div");
+            label.className = "info-label";
+            label.textContent = labelText + "：";
+
+            const value = document.createElement("div");
+            value.className = "info-value";
+            if (extraClassName) {
+                value.classList.add(extraClassName);
+            }
+            value.textContent = valueText;
+
+            row.appendChild(label);
+            row.appendChild(value);
+            return row;
+        }
+
+        // 简单格式化后端返回的时间，比如 2026-06-03T15:30:00
+        function formatTime(timeText) {
+            if (!timeText) {
+                return "未填写";
+            }
+
+            return timeText.replace("T", " ");
+        }
+    </script>
+</body>
+</html>
