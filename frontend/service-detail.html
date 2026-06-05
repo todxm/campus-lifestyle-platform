@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务详情</title>
+    <style>
+        body { margin: 0; font-family: Arial, "Microsoft YaHei", sans-serif; background-color: #f5f7fb; color: #222; }
+        .page { max-width: 900px; margin: 0 auto; padding: 24px; }
+        h1 { margin: 0 0 18px; font-size: 28px; }
+        .top-bar { margin-bottom: 18px; }
+        .back-button { padding: 10px 18px; border: none; border-radius: 6px; background-color: #2563eb; color: #fff; font-size: 14px; cursor: pointer; }
+        .back-button:hover { background-color: #1d4ed8; }
+        .message { margin: 12px 0; color: #666; }
+        .detail-card { background-color: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 22px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); }
+        .service-name { margin: 0 0 10px; font-size: 26px; font-weight: bold; }
+        .service-price { margin: 0 0 18px; color: #dc2626; font-size: 24px; font-weight: bold; }
+        .info-row { display: flex; gap: 10px; margin: 10px 0; font-size: 15px; line-height: 1.6; }
+        .info-label { width: 90px; flex: none; color: #555; font-weight: bold; }
+        .info-value { flex: 1; color: #333; word-break: break-word; }
+        .description { white-space: pre-wrap; }
+        .offline-button { width: 100%; margin-top: 20px; padding: 12px 0; border: none; border-radius: 6px; background-color: #dc2626; color: #fff; font-size: 16px; cursor: pointer; }
+        .offline-button:hover { background-color: #b91c1c; }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <div class="top-bar">
+            <button id="backButton" class="back-button" type="button">返回服务列表</button>
+        </div>
+
+        <h1>服务详情</h1>
+        <p id="message" class="message">正在加载服务详情...</p>
+        <section id="detailCard" class="detail-card"></section>
+        <button id="offlineButton" class="offline-button" type="button">下架服务</button>
+    </main>
+
+    <script>
+        // 后端接口基础地址
+        const API_BASE_URL = "http://localhost:8080";
+
+        const backButton = document.getElementById("backButton");
+        const message = document.getElementById("message");
+        const detailCard = document.getElementById("detailCard");
+        const offlineButton = document.getElementById("offlineButton");
+
+        // 默认先隐藏“下架服务”按钮；如果地址中有服务 id，再显示按钮
+        offlineButton.style.display = "none";
+
+        // 返回服务列表页
+        backButton.addEventListener("click", function () {
+            window.location.href = "service.html";
+        });
+
+        // 从当前页面地址读取 id，例如 service-detail.html?id=1
+        const params = new URLSearchParams(window.location.search);
+        const serviceId = params.get("id");
+
+        if (!serviceId) {
+            message.textContent = "地址中没有服务 id，请从服务列表点击“查看详情”进入。";
+            detailCard.style.display = "none";
+        } else {
+            offlineButton.style.display = "block";
+            loadServiceDetail(serviceId);
+        }
+
+        // 点击“下架服务”按钮，先让用户确认，避免误操作
+        offlineButton.addEventListener("click", function () {
+            offlineService(serviceId);
+        });
+
+        // 请求服务详情：GET http://localhost:8080/service-items/{id}
+        async function loadServiceDetail(id) {
+            message.textContent = "正在加载服务详情...";
+            detailCard.innerHTML = "";
+
+            try {
+                const response = await fetch(API_BASE_URL + "/service-items/" + id);
+                if (!response.ok) {
+                    message.textContent = "服务详情加载失败，请确认服务 id 是否存在。";
+                    detailCard.style.display = "none";
+                    return;
+                }
+
+                const service = await response.json();
+                renderServiceDetail(service);
+            } catch (error) {
+                message.textContent = "服务详情加载失败，请确认后端服务已经启动。";
+                detailCard.style.display = "none";
+                console.error("请求 /service-items/{id} 失败：", error);
+            }
+        }
+
+        // 把后端返回的服务对象显示到页面上
+        function renderServiceDetail(service) {
+            if (!service) {
+                message.textContent = "没有找到服务详情。";
+                detailCard.style.display = "none";
+                return;
+            }
+
+            message.textContent = "";
+            detailCard.style.display = "block";
+
+            const name = document.createElement("h2");
+            name.className = "service-name";
+            name.textContent = service.name || "未命名服务";
+
+            const priceInfo = document.createElement("p");
+            priceInfo.className = "service-price";
+            priceInfo.textContent = service.priceInfo || "价格面议";
+
+            detailCard.appendChild(name);
+            detailCard.appendChild(priceInfo);
+            detailCard.appendChild(createInfoRow("服务类型", service.type || "未填写"));
+            detailCard.appendChild(createInfoRow("服务说明", service.description || "暂无说明", "description"));
+            detailCard.appendChild(createInfoRow("联系微信", service.contactWechat || "未填写"));
+            detailCard.appendChild(createInfoRow("服务状态", service.status || "未填写"));
+            detailCard.appendChild(createInfoRow("发布时间", formatTime(service.createdTime)));
+        }
+
+        // 下架服务：PUT http://localhost:8080/service-items/{id}/offline
+        async function offlineService(id) {
+            const confirmed = confirm("确认下架该服务吗？");
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+                const response = await fetch(API_BASE_URL + "/service-items/" + id + "/offline", {
+                    method: "PUT"
+                });
+
+                const resultText = await response.text();
+
+                if (!response.ok || resultText !== "服务下架成功") {
+                    alert("服务下架失败，请稍后重试");
+                    return;
+                }
+
+                alert("服务下架成功");
+                window.location.href = "service.html";
+            } catch (error) {
+                alert("服务下架失败，请稍后重试");
+                console.error("请求 PUT /service-items/{id}/offline 失败：", error);
+            }
+        }
+
+        // 创建一行详情信息
+        function createInfoRow(labelText, valueText, extraClassName) {
+            const row = document.createElement("div");
+            row.className = "info-row";
+
+            const label = document.createElement("div");
+            label.className = "info-label";
+            label.textContent = labelText + "：";
+
+            const value = document.createElement("div");
+            value.className = "info-value";
+            if (extraClassName) {
+                value.classList.add(extraClassName);
+            }
+            value.textContent = valueText;
+
+            row.appendChild(label);
+            row.appendChild(value);
+            return row;
+        }
+
+        // 简单格式化后端返回的时间
+        function formatTime(timeText) {
+            if (!timeText) {
+                return "未填写";
+            }
+            return timeText.replace("T", " ");
+        }
+    </script>
+</body>
+</html>

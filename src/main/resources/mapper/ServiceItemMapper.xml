@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tod.campusmarketbackend.mapper.ServiceItemMapper">
+
+    <resultMap id="ServiceItemResultMap" type="com.tod.campusmarketbackend.entity.ServiceItem">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <result column="description" property="description"/>
+        <result column="price_info" property="priceInfo"/>
+        <result column="contact_wechat" property="contactWechat"/>
+        <result column="status" property="status"/>
+        <result column="created_time" property="createdTime"/>
+    </resultMap>
+
+    <!-- 查询所有在架服务 -->
+    <select id="findAll" resultMap="ServiceItemResultMap">
+        SELECT *
+        FROM service_item
+        WHERE status = 'ON'
+        ORDER BY created_time DESC
+    </select>
+
+    <!-- 根据 ID 查询服务详情 -->
+    <select id="findById" resultMap="ServiceItemResultMap">
+        SELECT *
+        FROM service_item
+        WHERE id = #{id}
+    </select>
+
+    <!-- 插入新服务 -->
+    <insert id="insert" parameterType="com.tod.campusmarketbackend.entity.ServiceItem"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO service_item(name, type, description, price_info, contact_wechat, status, created_time)
+        VALUES(#{name}, #{type}, #{description}, #{priceInfo}, #{contactWechat}, 'ON', NOW())
+    </insert>
+
+    <!-- 根据关键词和类型搜索服务 -->
+    <select id="search" resultMap="ServiceItemResultMap">
+        SELECT *
+        FROM service_item
+        WHERE status = 'ON'
+        <if test="keyword != null and keyword != ''">
+            AND name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        <if test="type != null and type != ''">
+            AND type = #{type}
+        </if>
+        ORDER BY created_time DESC
+    </select>
+
+    <!-- 下架服务 -->
+    <update id="offlineById">
+        UPDATE service_item
+        SET status = 'OFF'
+        WHERE id = #{id}
+    </update>
+
+</mapper>
