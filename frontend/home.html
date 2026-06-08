@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南航上海路校园生活小站</title>
+    <style>
+        /* 页面基础样式：和已有列表页保持一致的字体、背景和文字颜色 */
+        body {
+            margin: 0;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+            background-color: #f5f7fb;
+            color: #222;
+        }
+
+        /* 首页顶部只展示品牌标题，入口选择交给页面中间的两张大卡片 */
+        .site-nav {
+            background-color: #fff;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .site-nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .site-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        /* 主体容器：限制最大宽度，避免大屏幕下内容过散 */
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 24px 24px;
+        }
+
+        .hero {
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            margin: 0 0 12px;
+            font-size: 34px;
+            color: #111827;
+        }
+
+        .hero p {
+            max-width: 720px;
+            margin: 0;
+            color: #4b5563;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        /* 入口卡片容器：电脑端两列，手机端会变成单列 */
+        .entry-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .entry-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 180px;
+            padding: 22px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .entry-card:hover {
+            border-color: #bfdbfe;
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.10);
+        }
+
+        .entry-card h2 {
+            margin: 0 0 10px;
+            font-size: 24px;
+            color: #111827;
+        }
+
+        .entry-card p {
+            margin: 0;
+            color: #4b5563;
+            line-height: 1.7;
+        }
+
+        .entry-button {
+            align-self: flex-start;
+            margin-top: 22px;
+            padding: 10px 18px;
+            border-radius: 6px;
+            background-color: #2563eb;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .entry-card.service .entry-button {
+            background-color: #16a34a;
+        }
+
+        .version {
+            margin-top: 24px;
+            color: #6b7280;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        /* 手机端适配：缩小留白，入口卡片改为单列 */
+        @media (max-width: 600px) {
+            .site-nav-inner {
+                padding: 12px 16px;
+            }
+
+            .page {
+                padding: 24px 16px 16px;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .entry-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .entry-card {
+                min-height: 0;
+                padding: 18px;
+            }
+
+            .entry-button {
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+                min-height: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="site-nav">
+        <div class="site-nav-inner">
+            <div class="site-title">南航上海路校园生活小站</div>
+        </div>
+    </nav>
+
+    <main class="page">
+        <section class="hero">
+            <h1>南航上海路校园生活小站</h1>
+            <p>面向南昌航空大学上海路校区学生的校园二手与生活服务信息平台</p>
+        </section>
+
+        <section class="entry-grid">
+            <!-- 点击整张卡片都可以进入二手闲置模块 -->
+            <a class="entry-card" href="index.html">
+                <div>
+                    <h2>二手闲置</h2>
+                    <p>发布和浏览教材、数码、宿舍用品、交通出行等二手物品</p>
+                </div>
+                <span class="entry-button">进入二手闲置</span>
+            </a>
+
+            <!-- 点击整张卡片都可以进入校园服务模块 -->
+            <a class="entry-card service" href="service.html">
+                <div>
+                    <h2>校园服务</h2>
+                    <p>查看跑腿代拿、宿舍零食、打印复印、电脑维修等校园服务</p>
+                </div>
+                <span class="entry-button">进入校园服务</span>
+            </a>
+        </section>
+
+        <p class="version">V0.1 MVP</p>
+    </main>
+</body>
+</html>
