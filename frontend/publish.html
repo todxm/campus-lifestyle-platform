@@ -65,6 +65,7 @@
         }
 
         input,
+        select,
         textarea {
             width: 100%;
             box-sizing: border-box;
@@ -115,9 +116,109 @@
         .message.error {
             color: #dc2626;
         }
+
+        /* 六个页面共用的顶部导航栏 */
+        .site-nav {
+            background-color: #fff;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .site-nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .site-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: #374151;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            background-color: #eef2ff;
+            color: #1d4ed8;
+        }
+
+        .nav-link.active {
+            background-color: #2563eb;
+            color: #fff;
+        }
+
+        /* 手机端适配：减小留白，让表单和按钮占满可用宽度 */
+        @media (max-width: 600px) {
+            .site-nav-inner {
+                padding: 12px 16px;
+                align-items: flex-start;
+            }
+
+            .site-title,
+            .nav-links {
+                width: 100%;
+            }
+
+            .nav-links {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .nav-link {
+                text-align: center;
+            }
+
+            .page {
+                padding: 16px;
+            }
+
+            .back-button,
+            .submit-button {
+                width: 100%;
+                min-height: 44px;
+            }
+
+            .form-card {
+                padding: 16px;
+            }
+
+            input,
+            select,
+            textarea {
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
+    <nav class="site-nav">
+        <div class="site-nav-inner">
+            <div class="site-title">南航上海路校园生活小站</div>
+            <div class="nav-links">
+                <!-- 发布商品属于二手闲置模块，所以二手闲置保持高亮 -->
+                <a class="nav-link active" href="index.html">二手闲置</a>
+                <a class="nav-link" href="service.html">校园服务</a>
+            </div>
+        </div>
+    </nav>
+
     <main class="page">
         <div class="top-bar">
             <button id="backButton" class="back-button" type="button">返回首页</button>
@@ -125,35 +226,47 @@
 
         <h1>发布商品</h1>
 
-        <form id="publishForm" class="form-card">
+        <!-- novalidate 表示由下面的 JavaScript 统一显示更清楚的中文校验提示 -->
+        <form id="publishForm" class="form-card" novalidate>
             <div class="form-group">
                 <label for="titleInput">商品标题</label>
-                <input id="titleInput" type="text" placeholder="例如：九成新台灯" required>
+                <input id="titleInput" type="text" placeholder="例如：九成新宿舍台灯" required>
             </div>
 
             <div class="form-group">
                 <label for="descriptionInput">商品描述</label>
-                <textarea id="descriptionInput" placeholder="简单描述商品情况、购买时间、是否有瑕疵等" required></textarea>
+                <textarea id="descriptionInput" placeholder="例如：宿舍自用一年，功能正常，可在宿舍楼下看货" required></textarea>
             </div>
 
             <div class="form-group">
                 <label for="priceInput">价格</label>
-                <input id="priceInput" type="number" min="0" step="0.01" placeholder="例如：29.90" required>
+                <input id="priceInput" type="number" min="0" step="0.01" placeholder="例如：35" required>
             </div>
 
             <div class="form-group">
                 <label for="categoryInput">分类</label>
-                <input id="categoryInput" type="text" placeholder="例如：数码、教材、宿舍用品" required>
+                <!-- value 为空的第一项用于提示用户必须选择分类 -->
+                <select id="categoryInput" required>
+                    <option value="">请选择分类</option>
+                    <option value="数码电子">数码电子</option>
+                    <option value="教材资料">教材资料</option>
+                    <option value="宿舍用品">宿舍用品</option>
+                    <option value="交通出行">交通出行</option>
+                    <option value="服饰鞋包">服饰鞋包</option>
+                    <option value="运动户外">运动户外</option>
+                    <option value="生活杂物">生活杂物</option>
+                    <option value="其他">其他</option>
+                </select>
             </div>
 
             <div class="form-group">
                 <label for="conditionInput">成色</label>
-                <input id="conditionInput" type="text" placeholder="例如：全新、九成新、八成新" required>
+                <input id="conditionInput" type="text" placeholder="例如：九成新，有轻微使用痕迹" required>
             </div>
 
             <div class="form-group">
                 <label for="wechatInput">卖家微信</label>
-                <input id="wechatInput" type="text" placeholder="请输入方便买家联系的微信号" required>
+                <input id="wechatInput" type="text" placeholder="例如：nuaa_student2026" required>
             </div>
 
             <button id="submitButton" class="submit-button" type="submit">发布商品</button>
@@ -192,30 +305,69 @@
 
         // 发布商品：POST http://localhost:8080/products
         async function publishProduct() {
+            // 按钮禁用期间不再提交，避免用户连续点击产生重复请求
+            if (submitButton.disabled) {
+                return;
+            }
+
+            const priceText = priceInput.value.trim();
+
             // 这里的字段名要和后端 Product 实体中的属性名保持一致
             const product = {
                 title: titleInput.value.trim(),
                 description: descriptionInput.value.trim(),
-                price: Number(priceInput.value),
+                price: Number(priceText),
                 category: categoryInput.value.trim(),
                 conditionLevel: conditionInput.value.trim(),
                 contactWechat: wechatInput.value.trim()
             };
 
-            // 前端做一个简单校验，避免空内容直接发给后端
-            if (!product.title || !product.description || !product.category || !product.conditionLevel || !product.contactWechat) {
-                showMessage("请把商品信息填写完整。", "error");
+            // 按顺序检查每个字段，让用户能看到具体、容易理解的错误提示
+            if (!product.title) {
+                showMessage("请输入商品标题", "error");
                 return;
             }
 
-            if (Number.isNaN(product.price) || product.price < 0) {
-                showMessage("请输入正确的商品价格。", "error");
+            if (product.title.length < 2) {
+                showMessage("商品标题至少需要 2 个字", "error");
+                return;
+            }
+
+            if (!product.description) {
+                showMessage("请输入商品描述", "error");
+                return;
+            }
+
+            if (product.description.length < 5) {
+                showMessage("商品描述至少需要 5 个字", "error");
+                return;
+            }
+
+            if (!priceText || Number.isNaN(product.price) || product.price < 0) {
+                showMessage("请输入大于等于 0 的数字价格", "error");
+                return;
+            }
+
+            if (!product.category) {
+                showMessage("请选择商品分类", "error");
+                return;
+            }
+
+            if (!product.conditionLevel) {
+                showMessage("请输入商品成色", "error");
+                return;
+            }
+
+            if (!product.contactWechat) {
+                showMessage("请输入卖家微信", "error");
                 return;
             }
 
             submitButton.disabled = true;
             submitButton.textContent = "正在发布...";
             showMessage("正在发布商品...", "");
+
+            let publishSucceeded = false;
 
             try {
                 const response = await fetch(API_BASE_URL + "/products", {
@@ -231,7 +383,8 @@
                     return;
                 }
 
-                showMessage("商品发布成功", "success");
+                publishSucceeded = true;
+                showMessage("商品发布成功，即将返回首页", "success");
 
                 // 等 1 秒再跳转，让用户能看到成功提示
                 setTimeout(function () {
@@ -241,8 +394,11 @@
                 showMessage("商品发布失败，请确认后端服务已经启动。", "error");
                 console.error("请求 POST /products 失败：", error);
             } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = "发布商品";
+                // 发布失败时允许再次提交；成功时保持禁用，等待页面自动跳转
+                if (!publishSucceeded) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = "发布商品";
+                }
             }
         }
 

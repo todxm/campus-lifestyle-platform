@@ -97,6 +97,29 @@
             white-space: pre-wrap;
         }
 
+        /* 微信号和复制按钮放在同一行，样式与页面现有按钮保持一致 */
+        .wechat-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .copy-button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            background-color: #2563eb;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .copy-button:hover {
+            background-color: #1d4ed8;
+        }
+
         .offline-button {
             width: 100%;
             margin-top: 20px;
@@ -112,9 +135,120 @@
         .offline-button:hover {
             background-color: #b91c1c;
         }
+
+        /* 六个页面共用的顶部导航栏 */
+        .site-nav {
+            background-color: #fff;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .site-nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .site-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: #374151;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            background-color: #eef2ff;
+            color: #1d4ed8;
+        }
+
+        .nav-link.active {
+            background-color: #2563eb;
+            color: #fff;
+        }
+
+        /* 手机端适配：减小留白，并让详情信息和按钮更适合窄屏 */
+        @media (max-width: 600px) {
+            .site-nav-inner {
+                padding: 12px 16px;
+                align-items: flex-start;
+            }
+
+            .site-title,
+            .nav-links {
+                width: 100%;
+            }
+
+            .nav-links {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .nav-link {
+                text-align: center;
+            }
+
+            .page {
+                padding: 16px;
+            }
+
+            .back-button,
+            .offline-button {
+                width: 100%;
+                min-height: 44px;
+            }
+
+            .detail-card {
+                padding: 16px;
+            }
+
+            .info-row {
+                display: block;
+            }
+
+            .info-label {
+                width: auto;
+                margin-bottom: 2px;
+            }
+
+            .wechat-content {
+                align-items: stretch;
+            }
+
+            .copy-button {
+                min-height: 40px;
+            }
+        }
     </style>
 </head>
 <body>
+    <nav class="site-nav">
+        <div class="site-nav-inner">
+            <div class="site-title">南航上海路校园生活小站</div>
+            <div class="nav-links">
+                <!-- 商品详情属于二手闲置模块，所以二手闲置保持高亮 -->
+                <a class="nav-link active" href="index.html">二手闲置</a>
+                <a class="nav-link" href="service.html">校园服务</a>
+            </div>
+        </div>
+    </nav>
+
     <main class="page">
         <div class="top-bar">
             <button id="backButton" class="back-button" type="button">返回首页</button>
@@ -214,8 +348,81 @@
             detailCard.appendChild(createInfoRow("分类", product.category || "未填写"));
             detailCard.appendChild(createInfoRow("成色", product.conditionLevel || "未填写"));
             detailCard.appendChild(createInfoRow("描述", product.description || "暂无描述", "description"));
-            detailCard.appendChild(createInfoRow("卖家微信", product.contactWechat || "未填写"));
+            detailCard.appendChild(createWechatRow("卖家微信", product.contactWechat));
             detailCard.appendChild(createInfoRow("发布时间", formatTime(product.createdTime)));
+        }
+
+        // 创建微信信息行，并在微信号旁边添加“复制微信”按钮
+        function createWechatRow(labelText, wechatText) {
+            const row = document.createElement("div");
+            row.className = "info-row";
+
+            const label = document.createElement("div");
+            label.className = "info-label";
+            label.textContent = labelText + "：";
+
+            const content = document.createElement("div");
+            content.className = "wechat-content";
+
+            const value = document.createElement("div");
+            value.className = "info-value";
+            value.textContent = wechatText || "未填写";
+
+            const copyButton = document.createElement("button");
+            copyButton.className = "copy-button";
+            copyButton.type = "button";
+            copyButton.textContent = "复制微信";
+            copyButton.addEventListener("click", function () {
+                copyWechat(wechatText);
+            });
+
+            content.appendChild(value);
+            content.appendChild(copyButton);
+            row.appendChild(label);
+            row.appendChild(content);
+            return row;
+        }
+
+        // 优先使用浏览器剪贴板 API，不支持时使用临时 textarea 兼容复制
+        async function copyWechat(wechatText) {
+            const text = (wechatText || "").trim();
+            if (!text) {
+                alert("暂无微信号可复制");
+                return;
+            }
+
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(text);
+                } else {
+                    fallbackCopyText(text);
+                }
+                alert("微信号已复制");
+            } catch (error) {
+                try {
+                    fallbackCopyText(text);
+                    alert("微信号已复制");
+                } catch (fallbackError) {
+                    alert("复制失败，请手动复制微信号");
+                    console.error("复制微信号失败：", fallbackError);
+                }
+            }
+        }
+
+        // 兼容不支持 navigator.clipboard 的旧浏览器
+        function fallbackCopyText(text) {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.style.position = "fixed";
+            textarea.style.opacity = "0";
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            const copied = document.execCommand("copy");
+            document.body.removeChild(textarea);
+            if (!copied) {
+                throw new Error("浏览器未能完成复制");
+            }
         }
 
         // 下架商品：PUT http://localhost:8080/products/{id}/offline

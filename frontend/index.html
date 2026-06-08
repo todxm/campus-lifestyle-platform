@@ -105,13 +105,15 @@
             flex-wrap: wrap;
         }
 
-        .search-bar input {
+        .search-bar input,
+        .search-bar select {
             flex: 1;
             min-width: 180px;
             padding: 10px 12px;
             border: 1px solid #d7dce5;
             border-radius: 6px;
             font-size: 14px;
+            font-family: inherit;
             background-color: #fff;
         }
 
@@ -192,6 +194,66 @@
         .detail-button:hover {
             background-color: #15803d;
         }
+
+        /* 手机端适配：缩小留白，搜索区域纵向排列，卡片保持单列 */
+        @media (max-width: 600px) {
+            .site-nav-inner {
+                padding: 12px 16px;
+                align-items: flex-start;
+            }
+
+            .site-title,
+            .nav-links {
+                width: 100%;
+            }
+
+            .nav-links {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .nav-link {
+                text-align: center;
+            }
+
+            .page {
+                padding: 16px;
+            }
+
+            .page-header {
+                align-items: stretch;
+            }
+
+            .page-header h1,
+            .publish-button {
+                width: 100%;
+            }
+
+            .publish-button {
+                min-height: 44px;
+            }
+
+            .search-bar {
+                flex-direction: column;
+            }
+
+            .search-bar input,
+            .search-bar select,
+            .search-bar button {
+                width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
+                min-height: 44px;
+            }
+
+            .product-list {
+                grid-template-columns: 1fr;
+            }
+
+            .product-card {
+                padding: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -216,8 +278,18 @@
             <!-- keyword 会传给后端的 /products/search?keyword=xxx -->
             <input id="keywordInput" type="text" placeholder="输入商品关键词">
 
-            <!-- category 会传给后端的 /products/search?category=xxx -->
-            <input id="categoryInput" type="text" placeholder="输入分类">
+            <!-- value 为空表示“全部分类”，搜索时不会传 category 参数 -->
+            <select id="categoryInput">
+                <option value="">全部分类</option>
+                <option value="数码电子">数码电子</option>
+                <option value="教材资料">教材资料</option>
+                <option value="宿舍用品">宿舍用品</option>
+                <option value="交通出行">交通出行</option>
+                <option value="服饰鞋包">服饰鞋包</option>
+                <option value="运动户外">运动户外</option>
+                <option value="生活杂物">生活杂物</option>
+                <option value="其他">其他</option>
+            </select>
 
             <button id="searchButton" type="button">搜索</button>
             <button id="resetButton" type="button">查看全部</button>
@@ -247,6 +319,18 @@
 
         // 点击“搜索”时，根据关键词和分类请求 /products/search
         searchButton.addEventListener("click", function () {
+            searchProducts();
+        });
+
+        // 在关键词输入框按下 Enter 时，执行与点击“搜索”按钮相同的搜索
+        keywordInput.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                searchProducts();
+            }
+        });
+
+        // 分类发生变化时立即搜索，并自动结合输入框中已有的关键词
+        categoryInput.addEventListener("change", function () {
             searchProducts();
         });
 
