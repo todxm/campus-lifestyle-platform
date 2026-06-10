@@ -153,6 +153,45 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
+        /* 空状态卡片占满列表区域，用更友好的方式引导用户发布商品 */
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 36px 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            text-align: center;
+        }
+
+        .empty-state h2 {
+            margin: 0 0 10px;
+            font-size: 20px;
+            color: #111827;
+        }
+
+        .empty-state p {
+            margin: 0 auto 18px;
+            max-width: 520px;
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .empty-state-button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            background-color: #16a34a;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .empty-state-button:hover {
+            background-color: #15803d;
+        }
+
         .product-title {
             margin: 0 0 8px;
             font-size: 18px;
@@ -170,6 +209,31 @@
             margin: 6px 0;
             color: #555;
             font-size: 14px;
+        }
+
+        /* 分类和成色使用小标签展示，标签过长时会自动换行 */
+        .badge-list {
+            display: flex;
+            gap: 8px;
+            margin: 6px 0;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            max-width: 100%;
+            box-sizing: border-box;
+            padding: 4px 9px;
+            border-radius: 6px;
+            background-color: #eef2ff;
+            color: #1d4ed8;
+            font-size: 12px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .badge.condition {
+            background-color: #ecfdf5;
+            color: #15803d;
         }
 
         .product-description {
@@ -252,6 +316,15 @@
 
             .product-card {
                 padding: 16px;
+            }
+
+            .empty-state {
+                padding: 28px 16px;
+            }
+
+            .empty-state-button {
+                width: 100%;
+                min-height: 44px;
             }
         }
     </style>
@@ -336,10 +409,15 @@
 
         // 点击“查看全部”时，清空输入框并重新请求 /products
         resetButton.addEventListener("click", function () {
+            resetProductFilters();
+        });
+
+        // 清空商品搜索条件并重新加载全部商品，供两个“查看全部”按钮复用
+        function resetProductFilters() {
             keywordInput.value = "";
             categoryInput.value = "";
             loadProducts();
-        });
+        }
 
         // 点击“发布商品”按钮，跳转到发布商品页面
         publishButton.addEventListener("click", function () {
@@ -354,7 +432,7 @@
             try {
                 const response = await fetch(API_BASE_URL + "/products");
                 const products = await response.json();
-                renderProducts(products);
+                renderProducts(products, false);
             } catch (error) {
                 message.textContent = "商品加载失败，请确认后端服务已经启动。";
                 console.error("请求 /products 失败：", error);
@@ -381,19 +459,48 @@
             try {
                 const response = await fetch(API_BASE_URL + "/products/search?" + params.toString());
                 const products = await response.json();
-                renderProducts(products);
+                renderProducts(products, true);
             } catch (error) {
                 message.textContent = "搜索失败，请确认后端服务已经启动。";
                 console.error("请求 /products/search 失败：", error);
             }
         }
 
-        // 把后端返回的商品数组显示成卡片
-        function renderProducts(products) {
+        // isSearchResult 用来区分“平台没有商品”和“本次搜索没有匹配结果”
+        function renderProducts(products, isSearchResult) {
             productList.innerHTML = "";
 
             if (!products || products.length === 0) {
-                message.textContent = "暂无商品。";
+                message.textContent = "";
+
+                // 根据当前是否为搜索结果，显示不同的空状态提示和按钮
+                const emptyState = document.createElement("section");
+                emptyState.className = "empty-state";
+
+                const title = document.createElement("h2");
+                title.textContent = isSearchResult ? "没有找到相关商品" : "还没有二手闲置";
+
+                const description = document.createElement("p");
+                description.textContent = isSearchResult
+                    ? "换个关键词或分类试试，也可以查看全部商品。"
+                    : "可以先发布一个商品，让同学们看到你的闲置物品。";
+
+                const button = document.createElement("button");
+                button.className = "empty-state-button";
+                button.type = "button";
+                button.textContent = isSearchResult ? "查看全部" : "发布商品";
+                button.addEventListener("click", function () {
+                    if (isSearchResult) {
+                        resetProductFilters();
+                    } else {
+                        window.location.href = "publish.html";
+                    }
+                });
+
+                emptyState.appendChild(title);
+                emptyState.appendChild(description);
+                emptyState.appendChild(button);
+                productList.appendChild(emptyState);
                 return;
             }
 
@@ -412,13 +519,20 @@
                 price.className = "product-price";
                 price.textContent = "￥" + (product.price ?? "0");
 
-                const category = document.createElement("p");
-                category.className = "product-info";
+                // 分类和成色放进同一个标签组，信息更容易快速浏览
+                const badgeList = document.createElement("div");
+                badgeList.className = "badge-list";
+
+                const category = document.createElement("span");
+                category.className = "badge";
                 category.textContent = "分类：" + (product.category || "未填写");
 
-                const condition = document.createElement("p");
-                condition.className = "product-info";
+                const condition = document.createElement("span");
+                condition.className = "badge condition";
                 condition.textContent = "成色：" + (product.conditionLevel || "未填写");
+
+                badgeList.appendChild(category);
+                badgeList.appendChild(condition);
 
                 const description = document.createElement("p");
                 description.className = "product-description";
@@ -436,8 +550,7 @@
 
                 card.appendChild(title);
                 card.appendChild(price);
-                card.appendChild(category);
-                card.appendChild(condition);
+                card.appendChild(badgeList);
                 card.appendChild(description);
                 card.appendChild(button);
                 productList.appendChild(card);

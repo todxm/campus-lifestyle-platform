@@ -43,7 +43,7 @@
         }
 
         .hero {
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
 
         .hero h1 {
@@ -52,11 +52,19 @@
             color: #111827;
         }
 
-        .hero p {
-            max-width: 720px;
-            margin: 0;
+        .hero-subtitle {
+            max-width: 780px;
+            margin: 0 0 10px;
             color: #4b5563;
             font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .hero-description {
+            max-width: 780px;
+            margin: 0;
+            color: #6b7280;
+            font-size: 14px;
             line-height: 1.7;
         }
 
@@ -112,11 +120,42 @@
             background-color: #16a34a;
         }
 
-        .version {
-            margin-top: 24px;
-            color: #6b7280;
-            font-size: 14px;
+        /* 页面底部说明当前版本和项目阶段 */
+        .page-footer {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px solid #e5e7eb;
             text-align: center;
+        }
+
+        .version {
+            margin: 0 0 6px;
+            color: #4b5563;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .version-tip {
+            margin: 0 0 12px;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .feedback-link {
+            display: inline-block;
+            padding: 8px 14px;
+            border: 1px solid #d7dce5;
+            border-radius: 6px;
+            background-color: #fff;
+            color: #2563eb;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .feedback-link:hover {
+            background-color: #eef2ff;
+            border-color: #bfdbfe;
         }
 
         /* 手机端适配：缩小留白，入口卡片改为单列 */
@@ -131,6 +170,10 @@
 
             .hero h1 {
                 font-size: 28px;
+            }
+
+            .hero-subtitle {
+                font-size: 15px;
             }
 
             .entry-grid {
@@ -161,7 +204,8 @@
     <main class="page">
         <section class="hero">
             <h1>南航上海路校园生活小站</h1>
-            <p>面向南昌航空大学上海路校区学生的校园二手与生活服务信息平台</p>
+            <p class="hero-subtitle">面向南昌航空大学上海路校区学生的校园二手与生活服务信息平台</p>
+            <p class="hero-description">找闲置、看服务、联系同学和校园服务提供者，都可以从这里开始。</p>
         </section>
 
         <section class="entry-grid">
@@ -169,7 +213,7 @@
             <a class="entry-card" href="index.html">
                 <div>
                     <h2>二手闲置</h2>
-                    <p>发布和浏览教材、数码、宿舍用品、交通出行等二手物品</p>
+                    <p>发布和浏览教材、数码、宿舍用品、交通出行等二手物品。</p>
                 </div>
                 <span class="entry-button">进入二手闲置</span>
             </a>
@@ -178,13 +222,18 @@
             <a class="entry-card service" href="service.html">
                 <div>
                     <h2>校园服务</h2>
-                    <p>查看跑腿代拿、宿舍零食、打印复印、电脑维修等校园服务</p>
+                    <p>查看跑腿代拿、宿舍零食、打印复印、电脑维修等校园服务。</p>
                 </div>
                 <span class="entry-button">进入校园服务</span>
             </a>
         </section>
 
-        <p class="version">V0.1 MVP</p>
+        <footer class="page-footer">
+            <p class="version">当前版本：V0.1 MVP</p>
+            <p class="version-tip">当前为校园生活小站早期测试版本，功能会持续优化。</p>
+            <!-- 反馈入口放在页面底部，不影响两个主要模块入口 -->
+            <a class="feedback-link" href="feedback.html">反馈建议</a>
+        </footer>
     </main>
 </body>
 </html>

@@ -18,13 +18,17 @@
         .info-row { display: flex; gap: 10px; margin: 10px 0; font-size: 15px; line-height: 1.6; }
         .info-label { width: 90px; flex: none; color: #555; font-weight: bold; }
         .info-value { flex: 1; color: #333; word-break: break-word; }
+        /* 服务类型使用和商品分类一致的浅色小标签 */
+        .info-value.badge { flex: 0 1 auto; max-width: 100%; box-sizing: border-box; padding: 4px 9px; border-radius: 6px; background-color: #eef2ff; color: #1d4ed8; font-size: 12px; line-height: 1.4; }
         .description { white-space: pre-wrap; }
         /* 微信号和复制按钮放在同一行，样式与页面现有按钮保持一致 */
         .wechat-content { flex: 1; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .copy-button { padding: 6px 12px; border: none; border-radius: 6px; background-color: #2563eb; color: #fff; font-size: 14px; cursor: pointer; }
         .copy-button:hover { background-color: #1d4ed8; }
-        .offline-button { width: 100%; margin-top: 20px; padding: 12px 0; border: none; border-radius: 6px; background-color: #dc2626; color: #fff; font-size: 16px; cursor: pointer; }
-        .offline-button:hover { background-color: #b91c1c; }
+        /* 下架属于危险操作，使用克制的浅红色样式提醒用户 */
+        .offline-button { width: 100%; margin-top: 20px; padding: 12px 0; border: 1px solid #fca5a5; border-radius: 6px; background-color: #fef2f2; color: #b91c1c; font-size: 16px; cursor: pointer; }
+        .offline-button:hover { background-color: #fee2e2; }
+        .offline-button:disabled { color: #9ca3af; border-color: #e5e7eb; background-color: #f9fafb; cursor: not-allowed; }
 
         /* 六个页面共用的顶部导航栏 */
         .site-nav { background-color: #fff; border-bottom: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03); }
@@ -151,10 +155,10 @@
 
             detailCard.appendChild(name);
             detailCard.appendChild(priceInfo);
-            detailCard.appendChild(createInfoRow("服务类型", service.type || "未填写"));
+            detailCard.appendChild(createInfoRow("服务类型", service.type || "未填写", "badge"));
             detailCard.appendChild(createInfoRow("服务说明", service.description || "暂无说明", "description"));
             detailCard.appendChild(createWechatRow("联系微信", service.contactWechat));
-            detailCard.appendChild(createInfoRow("服务状态", service.status || "未填写"));
+            // status 仍由后端用于上下架判断，普通用户的详情页不需要展示
             detailCard.appendChild(createInfoRow("发布时间", formatTime(service.createdTime)));
         }
 
@@ -233,10 +237,14 @@
 
         // 下架服务：PUT http://localhost:8080/service-items/{id}/offline
         async function offlineService(id) {
-            const confirmed = confirm("确认下架该服务吗？");
+            const confirmed = confirm("确认下架该服务吗？下架后将不会在服务列表中显示。");
             if (!confirmed) {
                 return;
             }
+
+            // 请求期间禁用按钮，避免连续点击重复发送下架请求
+            offlineButton.disabled = true;
+            offlineButton.textContent = "正在下架...";
 
             try {
                 const response = await fetch(API_BASE_URL + "/service-items/" + id + "/offline", {
@@ -247,13 +255,21 @@
 
                 if (!response.ok || resultText !== "服务下架成功") {
                     alert("服务下架失败，请稍后重试");
+                    offlineButton.disabled = false;
+                    offlineButton.textContent = "下架服务";
                     return;
                 }
 
-                alert("服务下架成功");
-                window.location.href = "service.html";
+                alert("服务已下架，即将返回服务列表");
+
+                // 等 1 秒再返回列表，让用户明确知道下架已经成功
+                setTimeout(function () {
+                    window.location.href = "service.html";
+                }, 1000);
             } catch (error) {
-                alert("服务下架失败，请稍后重试");
+                alert("服务下架失败，请确认后端服务已经启动");
+                offlineButton.disabled = false;
+                offlineButton.textContent = "下架服务";
                 console.error("请求 PUT /service-items/{id}/offline 失败：", error);
             }
         }
@@ -270,7 +286,8 @@
             const value = document.createElement("div");
             value.className = "info-value";
             if (extraClassName) {
-                value.classList.add(extraClassName);
+                // 允许传入多个类名，方便以后组合不同标签样式
+                value.classList.add(...extraClassName.split(" "));
             }
             value.textContent = valueText;
 

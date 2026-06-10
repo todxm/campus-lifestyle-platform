@@ -93,6 +93,24 @@
             word-break: break-word;
         }
 
+        /* 分类、成色等简短信息使用浅色小标签展示 */
+        .info-value.badge {
+            flex: 0 1 auto;
+            max-width: 100%;
+            box-sizing: border-box;
+            padding: 4px 9px;
+            border-radius: 6px;
+            background-color: #eef2ff;
+            color: #1d4ed8;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .info-value.badge.condition {
+            background-color: #ecfdf5;
+            color: #15803d;
+        }
+
         .description {
             white-space: pre-wrap;
         }
@@ -124,16 +142,23 @@
             width: 100%;
             margin-top: 20px;
             padding: 12px 0;
-            border: none;
+            border: 1px solid #fca5a5;
             border-radius: 6px;
-            background-color: #dc2626;
-            color: #fff;
+            background-color: #fef2f2;
+            color: #b91c1c;
             font-size: 16px;
             cursor: pointer;
         }
 
         .offline-button:hover {
-            background-color: #b91c1c;
+            background-color: #fee2e2;
+        }
+
+        .offline-button:disabled {
+            color: #9ca3af;
+            border-color: #e5e7eb;
+            background-color: #f9fafb;
+            cursor: not-allowed;
         }
 
         /* 六个页面共用的顶部导航栏 */
@@ -345,8 +370,8 @@
 
             detailCard.appendChild(title);
             detailCard.appendChild(price);
-            detailCard.appendChild(createInfoRow("分类", product.category || "未填写"));
-            detailCard.appendChild(createInfoRow("成色", product.conditionLevel || "未填写"));
+            detailCard.appendChild(createInfoRow("分类", product.category || "未填写", "badge"));
+            detailCard.appendChild(createInfoRow("成色", product.conditionLevel || "未填写", "badge condition"));
             detailCard.appendChild(createInfoRow("描述", product.description || "暂无描述", "description"));
             detailCard.appendChild(createWechatRow("卖家微信", product.contactWechat));
             detailCard.appendChild(createInfoRow("发布时间", formatTime(product.createdTime)));
@@ -427,10 +452,14 @@
 
         // 下架商品：PUT http://localhost:8080/products/{id}/offline
         async function offlineProduct(id) {
-            const confirmed = confirm("确定要下架这个商品吗？");
+            const confirmed = confirm("确认下架该商品吗？下架后将不会在商品列表中显示。");
             if (!confirmed) {
                 return;
             }
+
+            // 请求期间禁用按钮，避免连续点击重复发送下架请求
+            offlineButton.disabled = true;
+            offlineButton.textContent = "正在下架...";
 
             try {
                 const response = await fetch(API_BASE_URL + "/products/" + id + "/offline", {
@@ -438,14 +467,22 @@
                 });
 
                 if (!response.ok) {
-                    message.textContent = "商品下架失败，请稍后重试。";
+                    alert("商品下架失败，请稍后重试");
+                    offlineButton.disabled = false;
+                    offlineButton.textContent = "下架商品";
                     return;
                 }
 
-                alert("商品下架成功");
-                window.location.href = "index.html";
+                alert("商品已下架，即将返回商品列表");
+
+                // 等 1 秒再返回列表，让用户明确知道下架已经成功
+                setTimeout(function () {
+                    window.location.href = "index.html";
+                }, 1000);
             } catch (error) {
-                message.textContent = "商品下架失败，请确认后端服务已经启动。";
+                alert("商品下架失败，请确认后端服务已经启动");
+                offlineButton.disabled = false;
+                offlineButton.textContent = "下架商品";
                 console.error("请求 PUT /products/{id}/offline 失败：", error);
             }
         }
@@ -462,7 +499,8 @@
             const value = document.createElement("div");
             value.className = "info-value";
             if (extraClassName) {
-                value.classList.add(extraClassName);
+                // 允许传入多个类名，例如 "badge condition"
+                value.classList.add(...extraClassName.split(" "));
             }
             value.textContent = valueText;
 
