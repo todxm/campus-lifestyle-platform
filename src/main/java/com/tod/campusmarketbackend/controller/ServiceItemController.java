@@ -13,7 +13,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/service-items")
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = {"http://localhost:8081", "http://115.159.47.131:8081"})
 public class ServiceItemController {
 
     @Autowired
