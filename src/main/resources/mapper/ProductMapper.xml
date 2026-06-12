@@ -13,6 +13,7 @@
         <result column="category" property="category"/>
         <result column="condition_level" property="conditionLevel"/>
         <result column="contact_wechat" property="contactWechat"/>
+        <result column="image_url" property="imageUrl"/>
         <result column="status" property="status"/>
         <result column="created_time" property="createdTime"/>
     </resultMap>
@@ -33,9 +34,9 @@
 
     <insert id="insert" parameterType="com.tod.campusmarketbackend.entity.Product">
         INSERT INTO product
-        (title, description, price, category, condition_level, contact_wechat, status, created_time)
+        (title, description, price, category, condition_level, contact_wechat, image_url, status, created_time)
         VALUES
-        (#{title}, #{description}, #{price}, #{category}, #{conditionLevel}, #{contactWechat}, #{status}, #{createdTime})
+        (#{title}, #{description}, #{price}, #{category}, #{conditionLevel}, #{contactWechat}, #{imageUrl}, #{status}, #{createdTime})
     </insert>
 
     <update id="offlineById">

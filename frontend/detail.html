@@ -59,6 +59,31 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
+        /* 商品详情图保持固定比例，使用 contain 展示完整图片并避免变形 */
+        .product-image,
+        .product-image-placeholder {
+            width: 100%;
+            max-height: 520px;
+            min-height: 220px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: #f3f4f6;
+        }
+
+        .product-image {
+            display: block;
+            object-fit: contain;
+        }
+
+        .product-image-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
         .product-title {
             margin: 0 0 10px;
             font-size: 26px;
@@ -243,6 +268,12 @@
                 padding: 16px;
             }
 
+            .product-image,
+            .product-image-placeholder {
+                min-height: 180px;
+                max-height: 360px;
+            }
+
             .info-row {
                 display: block;
             }
@@ -290,8 +321,11 @@
     </main>
 
     <script>
-        // 后端接口基础地址，后端 Spring Boot 默认运行在 8080 端口
-        const API_BASE_URL = "http://localhost:8080";
+        // 本地打开页面时请求本机后端，部署到服务器后请求当前服务器的 8080 端口
+        const API_HOST = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+            ? "localhost"
+            : window.location.hostname;
+        const API_BASE_URL = "http://" + API_HOST + ":8080";
 
         // 获取页面上的元素，后面渲染数据时会用到
         const backButton = document.getElementById("backButton");
@@ -368,6 +402,7 @@
             price.className = "product-price";
             price.textContent = "￥" + (product.price ?? "0");
 
+            detailCard.appendChild(createProductImage(product));
             detailCard.appendChild(title);
             detailCard.appendChild(price);
             detailCard.appendChild(createInfoRow("分类", product.category || "未填写", "badge"));
@@ -375,6 +410,28 @@
             detailCard.appendChild(createInfoRow("描述", product.description || "暂无描述", "description"));
             detailCard.appendChild(createWechatRow("卖家微信", product.contactWechat));
             detailCard.appendChild(createInfoRow("发布时间", formatTime(product.createdTime)));
+        }
+
+        // 创建详情页商品图片；没有图片时显示简单占位提示
+        function createProductImage(product) {
+            if (!product.imageUrl) {
+                const placeholder = document.createElement("div");
+                placeholder.className = "product-image-placeholder";
+                placeholder.textContent = "暂无图片";
+                return placeholder;
+            }
+
+            const image = document.createElement("img");
+            image.className = "product-image";
+            image.src = product.imageUrl;
+            image.alt = product.title ? product.title + "的商品图片" : "商品图片";
+            image.addEventListener("error", function () {
+                const placeholder = document.createElement("div");
+                placeholder.className = "product-image-placeholder";
+                placeholder.textContent = "图片加载失败";
+                image.replaceWith(placeholder);
+            });
+            return image;
         }
 
         // 创建微信信息行，并在微信号旁边添加“复制微信”按钮

@@ -83,6 +83,26 @@
             line-height: 1.5;
         }
 
+        /* 图片预览区域：选择文件后显示，图片使用 contain 避免变形 */
+        .image-preview {
+            display: none;
+            width: 100%;
+            max-height: 320px;
+            box-sizing: border-box;
+            margin-top: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #f9fafb;
+            object-fit: contain;
+        }
+
+        .field-help {
+            margin: 8px 0 0;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
         .submit-button {
             width: 100%;
             padding: 12px 0;
@@ -269,6 +289,18 @@
                 <input id="wechatInput" type="text" placeholder="例如：nuaa_student2026" required>
             </div>
 
+            <div class="form-group">
+                <label for="imageInput">商品图片（选填）</label>
+                <!-- 第一版只上传一张图片，accept 用来提示浏览器优先选择常见图片格式 -->
+                <input
+                    id="imageInput"
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                >
+                <p class="field-help">支持 jpg、jpeg、png、webp，单张图片不超过 5MB。</p>
+                <img id="imagePreview" class="image-preview" alt="商品图片预览">
+            </div>
+
             <button id="submitButton" class="submit-button" type="submit">发布商品</button>
         </form>
 
@@ -276,8 +308,13 @@
     </main>
 
     <script>
-        // 后端接口基础地址，后端 Spring Boot 默认运行在 8080 端口
-        const API_BASE_URL = "http://localhost:8080";
+        // 本地打开页面时请求本机后端，部署到服务器后请求当前服务器的 8080 端口
+        const API_HOST = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+            ? "localhost"
+            : window.location.hostname;
+        const API_BASE_URL = "http://" + API_HOST + ":8080";
+        const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+        const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
         // 获取页面上的元素，提交表单时会读取这些输入框的值
         const backButton = document.getElementById("backButton");
@@ -290,6 +327,9 @@
         const categoryInput = document.getElementById("categoryInput");
         const conditionInput = document.getElementById("conditionInput");
         const wechatInput = document.getElementById("wechatInput");
+        const imageInput = document.getElementById("imageInput");
+        const imagePreview = document.getElementById("imagePreview");
+        let previewObjectUrl = "";
 
         // 点击“返回首页”按钮，跳回商品列表页
         backButton.addEventListener("click", function () {
@@ -303,7 +343,41 @@
             publishProduct();
         });
 
-        // 发布商品：POST http://localhost:8080/products
+        // 选择图片后先做前端格式和大小检查，再使用本地临时地址显示预览
+        imageInput.addEventListener("change", function () {
+            const imageFile = imageInput.files[0];
+
+            if (previewObjectUrl) {
+                URL.revokeObjectURL(previewObjectUrl);
+                previewObjectUrl = "";
+            }
+
+            imagePreview.style.display = "none";
+            imagePreview.removeAttribute("src");
+
+            if (!imageFile) {
+                return;
+            }
+
+            if (!ALLOWED_IMAGE_TYPES.includes(imageFile.type)) {
+                imageInput.value = "";
+                showMessage("请选择 jpg、jpeg、png 或 webp 格式的图片", "error");
+                return;
+            }
+
+            if (imageFile.size > MAX_IMAGE_SIZE) {
+                imageInput.value = "";
+                showMessage("商品图片不能超过 5MB", "error");
+                return;
+            }
+
+            previewObjectUrl = URL.createObjectURL(imageFile);
+            imagePreview.src = previewObjectUrl;
+            imagePreview.style.display = "block";
+            showMessage("", "");
+        });
+
+        // 发布商品：如有图片先上传，再 POST /products 保存商品和 imageUrl
         async function publishProduct() {
             // 按钮禁用期间不再提交，避免用户连续点击产生重复请求
             if (submitButton.disabled) {
@@ -319,7 +393,8 @@
                 price: Number(priceText),
                 category: categoryInput.value.trim(),
                 conditionLevel: conditionInput.value.trim(),
-                contactWechat: wechatInput.value.trim()
+                contactWechat: wechatInput.value.trim(),
+                imageUrl: null
             };
 
             // 按顺序检查每个字段，让用户能看到具体、容易理解的错误提示
@@ -363,6 +438,17 @@
                 return;
             }
 
+            const imageFile = imageInput.files[0];
+            if (imageFile && !ALLOWED_IMAGE_TYPES.includes(imageFile.type)) {
+                showMessage("请选择 jpg、jpeg、png 或 webp 格式的图片", "error");
+                return;
+            }
+
+            if (imageFile && imageFile.size > MAX_IMAGE_SIZE) {
+                showMessage("商品图片不能超过 5MB", "error");
+                return;
+            }
+
             submitButton.disabled = true;
             submitButton.textContent = "正在发布...";
             showMessage("正在发布商品...", "");
@@ -370,6 +456,13 @@
             let publishSucceeded = false;
 
             try {
+                // 图片是可选的：选择图片时先上传，成功后把返回的 URL 放进商品 JSON
+                if (imageFile) {
+                    showMessage("正在上传商品图片...", "");
+                    product.imageUrl = await uploadProductImage(imageFile);
+                }
+
+                showMessage("正在发布商品...", "");
                 const response = await fetch(API_BASE_URL + "/products", {
                     method: "POST",
                     headers: {
@@ -391,8 +484,8 @@
                     window.location.href = "index.html";
                 }, 1000);
             } catch (error) {
-                showMessage("商品发布失败，请确认后端服务已经启动。", "error");
-                console.error("请求 POST /products 失败：", error);
+                showMessage(error.message || "商品发布失败，请确认后端服务已经启动。", "error");
+                console.error("上传图片或发布商品失败：", error);
             } finally {
                 // 发布失败时允许再次提交；成功时保持禁用，等待页面自动跳转
                 if (!publishSucceeded) {
@@ -400,6 +493,37 @@
                     submitButton.textContent = "发布商品";
                 }
             }
+        }
+
+        // 使用 FormData 上传文件，字段名 file 要和后端 @RequestParam("file") 一致
+        async function uploadProductImage(imageFile) {
+            const formData = new FormData();
+            formData.append("file", imageFile);
+
+            const response = await fetch(API_BASE_URL + "/upload/product-image", {
+                method: "POST",
+                body: formData
+            });
+
+            if (!response.ok) {
+                let errorMessage = "图片上传失败，请检查图片格式和大小";
+                try {
+                    const errorData = await response.json();
+                    if (errorData.message) {
+                        errorMessage = errorData.message;
+                    }
+                } catch (error) {
+                    // 后端没有返回 JSON 时继续使用上面的中文提示
+                }
+                throw new Error(errorMessage);
+            }
+
+            const uploadResult = await response.json();
+            if (!uploadResult.imageUrl) {
+                throw new Error("后端没有返回图片地址");
+            }
+
+            return uploadResult.imageUrl;
         }
 
         // 显示提示信息，type 可以是 success、error 或空字符串

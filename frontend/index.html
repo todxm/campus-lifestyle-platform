@@ -149,8 +149,34 @@
             background-color: #fff;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
-            padding: 16px;
+            padding: 0;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        /* 固定图片比例并使用 object-fit，手机和电脑上都不会拉伸变形 */
+        .product-image,
+        .product-image-placeholder {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            display: block;
+            background-color: #f3f4f6;
+        }
+
+        .product-image {
+            object-fit: cover;
+        }
+
+        .product-image-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .product-card-content {
+            padding: 16px;
         }
 
         /* 空状态卡片占满列表区域，用更友好的方式引导用户发布商品 */
@@ -315,7 +341,7 @@
             }
 
             .product-card {
-                padding: 16px;
+                padding: 0;
             }
 
             .empty-state {
@@ -375,8 +401,11 @@
     </main>
 
     <script>
-        // 后端接口基础地址，后端 Spring Boot 默认运行在 8080 端口
-        const API_BASE_URL = "http://localhost:8080";
+        // 本地打开页面时请求本机后端，部署到服务器后请求当前服务器的 8080 端口
+        const API_HOST = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+            ? "localhost"
+            : window.location.hostname;
+        const API_BASE_URL = "http://" + API_HOST + ":8080";
 
         // 获取页面上的元素，后面会反复使用
         const productList = document.getElementById("productList");
@@ -510,6 +539,11 @@
                 const card = document.createElement("article");
                 card.className = "product-card";
 
+                // 有图片时显示商品图，没有图片时显示统一占位区域
+                const imageArea = createProductImage(product);
+                const cardContent = document.createElement("div");
+                cardContent.className = "product-card-content";
+
                 // 使用 textContent 放入用户数据，可以避免把特殊字符当成 HTML 执行
                 const title = document.createElement("h2");
                 title.className = "product-title";
@@ -548,13 +582,41 @@
                     window.location.href = "detail.html?id=" + product.id;
                 });
 
-                card.appendChild(title);
-                card.appendChild(price);
-                card.appendChild(badgeList);
-                card.appendChild(description);
-                card.appendChild(button);
+                cardContent.appendChild(title);
+                cardContent.appendChild(price);
+                cardContent.appendChild(badgeList);
+                cardContent.appendChild(description);
+                cardContent.appendChild(button);
+                card.appendChild(imageArea);
+                card.appendChild(cardContent);
                 productList.appendChild(card);
             });
+        }
+
+        // 创建商品卡片顶部的图片或“暂无图片”占位区域
+        function createProductImage(product) {
+            if (!product.imageUrl) {
+                const placeholder = document.createElement("div");
+                placeholder.className = "product-image-placeholder";
+                placeholder.textContent = "暂无图片";
+                return placeholder;
+            }
+
+            const image = document.createElement("img");
+            image.className = "product-image";
+            image.src = product.imageUrl;
+            image.alt = product.title ? product.title + "的商品图片" : "商品图片";
+            image.loading = "lazy";
+
+            // 图片地址失效时替换为占位区域，避免页面显示破损图标
+            image.addEventListener("error", function () {
+                const placeholder = document.createElement("div");
+                placeholder.className = "product-image-placeholder";
+                placeholder.textContent = "图片加载失败";
+                image.replaceWith(placeholder);
+            });
+
+            return image;
         }
     </script>
 </body>

@@ -51,3 +51,6 @@ build/
 
 ### Visual Studio ###
 .vs/
+
+### Uploaded files ###
+uploads/

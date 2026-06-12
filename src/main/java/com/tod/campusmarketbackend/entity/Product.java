@@ -33,6 +33,9 @@ public class Product {
     // 卖家微信，对应数据库 contact_wechat
     private String contactWechat;
 
+    // 商品图片访问地址，对应数据库 image_url
+    private String imageUrl;
+
     // 商品状态，对应数据库 status
     private String status;
 
