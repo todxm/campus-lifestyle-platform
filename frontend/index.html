@@ -154,11 +154,13 @@
             overflow: hidden;
         }
 
-        /* 固定图片比例并使用 object-fit，手机和电脑上都不会拉伸变形 */
+        /* 商品卡片顶部图片：明确设置高度，避免部分手机浏览器只依赖 aspect-ratio 时不显示 */
         .product-image,
         .product-image-placeholder {
             width: 100%;
-            aspect-ratio: 4 / 3;
+            height: 180px;
+            min-height: 180px;
+            box-sizing: border-box;
             display: block;
             background-color: #f3f4f6;
         }
@@ -341,7 +343,16 @@
             }
 
             .product-card {
+                width: 100%;
                 padding: 0;
+            }
+
+            /* 手机端固定为 160px 高，并占满卡片宽度 */
+            .product-image,
+            .product-image-placeholder {
+                width: 100%;
+                height: 160px;
+                min-height: 160px;
             }
 
             .empty-state {
@@ -606,7 +617,8 @@
             image.className = "product-image";
             image.src = product.imageUrl;
             image.alt = product.title ? product.title + "的商品图片" : "商品图片";
-            image.loading = "lazy";
+            // 商品列表首屏直接加载图片，避免部分手机浏览器延迟加载后图片区域保持空白
+            image.loading = "eager";
 
             // 图片地址失效时替换为占位区域，避免页面显示破损图标
             image.addEventListener("error", function () {
