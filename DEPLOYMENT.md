@@ -635,3 +635,430 @@ target/campus-market-backend-0.0.1-SNAPSHOT.jar
 - 仅开放必要的公网端口，不向公网开放 MySQL `3306`
 - 使用环境变量或受权限保护的配置文件保存数据库密码
 - 定期备份 `campus_market` 数据库
+
+## 十四、服务常驻部署方案
+
+本章用于将当前临时运行方式升级为更稳定的线上运行方式：
+
+- 后端由 `systemd` 管理 Spring Boot JAR
+- 前端由 Nginx 托管静态页面
+
+> 下面的命令需要在腾讯云 Ubuntu 服务器上执行。本章只是部署方案记录，执行切换前应确认当前线上服务状态。停止旧进程和切换端口时，线上访问可能会短暂中断。
+
+### 1. 为什么要做服务常驻
+
+当前后端使用 `nohup java -jar`，前端使用 `python3 -m http.server 8081`。这两种方式适合开发和短期测试，但存在以下问题：
+
+- 服务器重启后，原来的进程通常不会自动恢复
+- 进程异常退出后，不会自动重启
+- 不方便统一查看服务状态和日志
+- Python 静态服务器不是正式生产环境的 Web 服务器
+- 手动管理进程容易出现重复启动和端口占用
+
+进入正式测试阶段后，建议：
+
+- 使用 `systemd` 管理后端，实现开机自启、异常重启和统一日志查看
+- 使用 Nginx 托管前端，实现稳定的静态文件访问
+
+### 2. 切换前检查
+
+先确认当前 JAR 可以正常运行：
+
+```bash
+java -version
+ls -lh /home/ubuntu/campus-lifestyle-platform/backend/campus-market-backend-0.0.1-SNAPSHOT.jar
+```
+
+确认 Java 版本为 17，并且 JAR 文件确实存在。
+
+检查当前端口：
+
+```bash
+ss -lntp | grep 8080
+ss -lntp | grep 8081
+```
+
+检查前端目录中的主要页面：
+
+```bash
+ls -lh /home/ubuntu/campus-lifestyle-platform/frontend
+```
+
+至少应能看到：
+
+```text
+home.html
+index.html
+service.html
+detail.html
+service-detail.html
+```
+
+### 3. 后端 systemd 方案
+
+后端部署信息：
+
+```text
+JAR 文件：
+/home/ubuntu/campus-lifestyle-platform/backend/campus-market-backend-0.0.1-SNAPSHOT.jar
+
+运行端口：
+8080
+
+systemd 服务文件：
+/etc/systemd/system/campus-market-backend.service
+```
+
+#### 3.1 创建数据库环境变量文件
+
+真实数据库密码不要直接写进 Git 仓库或本文档。建议将数据库配置放在服务器的独立环境变量文件中：
+
+```bash
+sudo nano /etc/campus-market-backend.env
+```
+
+填写以下内容，将 `<DB_PASSWORD>` 替换为服务器上的真实数据库密码：
+
+```text
+SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/campus_market?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+SPRING_DATASOURCE_USERNAME=campus_user
+SPRING_DATASOURCE_PASSWORD=<DB_PASSWORD>
+```
+
+保存后限制文件权限，避免普通用户读取数据库密码：
+
+```bash
+sudo chown root:root /etc/campus-market-backend.env
+sudo chmod 600 /etc/campus-market-backend.env
+```
+
+#### 3.2 创建 systemd 服务文件
+
+执行：
+
+```bash
+sudo nano /etc/systemd/system/campus-market-backend.service
+```
+
+写入以下内容：
+
+```ini
+[Unit]
+Description=Campus Market Spring Boot Backend
+After=network.target mysql.service
+Wants=mysql.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/campus-lifestyle-platform/backend
+EnvironmentFile=/etc/campus-market-backend.env
+ExecStart=/usr/bin/java -jar /home/ubuntu/campus-lifestyle-platform/backend/campus-market-backend-0.0.1-SNAPSHOT.jar
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+配置说明：
+
+- `User=ubuntu`：使用普通用户运行后端，不使用 root
+- `WorkingDirectory`：后端运行目录
+- `EnvironmentFile`：读取受保护的数据库配置
+- `Restart=on-failure`：后端异常退出后自动重启
+- `After` 和 `Wants`：让后端在网络和 MySQL 服务可用后启动
+
+确认 Java 的实际路径：
+
+```bash
+which java
+```
+
+如果输出不是 `/usr/bin/java`，需要将服务文件中的 `ExecStart` 改为实际路径。
+
+#### 3.3 停止旧的 nohup 后端
+
+切换到 systemd 前，先停止旧后端，避免 `8080` 端口冲突：
+
+```bash
+pkill -f campus-market-backend
+```
+
+确认端口已经释放：
+
+```bash
+ss -lntp | grep 8080
+```
+
+此操作会暂时中断后端接口，应尽快完成后续启动和验证。
+
+#### 3.4 加载并启动 systemd 服务
+
+每次新增或修改服务文件后，都需要重新加载 systemd 配置：
+
+```bash
+sudo systemctl daemon-reload
+```
+
+设置开机自启并立即启动：
+
+```bash
+sudo systemctl enable --now campus-market-backend
+```
+
+检查状态：
+
+```bash
+sudo systemctl status campus-market-backend
+```
+
+如果进入分页状态页面，按 `q` 退出。也可以避免进入分页页面：
+
+```bash
+sudo systemctl status campus-market-backend --no-pager
+```
+
+测试接口：
+
+```bash
+curl http://localhost:8080/products
+curl http://localhost:8080/service-items
+```
+
+#### 3.5 systemd 常用命令
+
+启动后端：
+
+```bash
+sudo systemctl start campus-market-backend
+```
+
+停止后端：
+
+```bash
+sudo systemctl stop campus-market-backend
+```
+
+重启后端：
+
+```bash
+sudo systemctl restart campus-market-backend
+```
+
+查看状态：
+
+```bash
+sudo systemctl status campus-market-backend
+```
+
+持续查看日志：
+
+```bash
+journalctl -u campus-market-backend -f
+```
+
+查看最近 100 行日志：
+
+```bash
+journalctl -u campus-market-backend -n 100 --no-pager
+```
+
+更新 JAR 后，应执行：
+
+```bash
+sudo systemctl restart campus-market-backend
+```
+
+### 4. 前端 Nginx 方案
+
+前端部署信息：
+
+```text
+前端文件目录：
+/home/ubuntu/campus-lifestyle-platform/frontend
+
+前端入口：
+home.html
+
+Nginx 访问端口：
+80
+```
+
+使用 Nginx 后，前端地址计划从：
+
+```text
+http://115.159.47.131:8081/home.html
+```
+
+变为：
+
+```text
+http://115.159.47.131/home.html
+```
+
+也可以将 `home.html` 设置为默认首页，直接访问：
+
+```text
+http://115.159.47.131/
+```
+
+#### 4.1 安装并检查 Nginx
+
+```bash
+sudo apt update
+sudo apt install nginx -y
+sudo systemctl enable nginx
+```
+
+检查状态：
+
+```bash
+sudo systemctl status nginx --no-pager
+```
+
+#### 4.2 确认 Nginx 可以读取前端文件
+
+Nginx 进程需要读取前端目录。先确保文件对 Web 服务器可读：
+
+```bash
+sudo chmod o+x /home/ubuntu
+sudo chmod -R a+rX /home/ubuntu/campus-lifestyle-platform/frontend
+```
+
+这些命令只增加进入目录和读取静态文件所需的权限，不应给其他用户增加写权限。
+
+#### 4.3 创建 Nginx 配置
+
+创建站点配置：
+
+```bash
+sudo nano /etc/nginx/sites-available/campus-market
+```
+
+写入：
+
+```nginx
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name 115.159.47.131;
+
+    root /home/ubuntu/campus-lifestyle-platform/frontend;
+    index home.html;
+
+    location / {
+        try_files $uri $uri/ /home.html;
+    }
+}
+```
+
+本阶段只让 Nginx 提供前端静态页面，不代理 MySQL，也不把 MySQL `3306` 端口暴露到公网。
+
+#### 4.4 启用配置
+
+创建配置链接：
+
+```bash
+sudo ln -s /etc/nginx/sites-available/campus-market /etc/nginx/sites-enabled/campus-market
+```
+
+如果不再需要 Nginx 默认站点，可以移除默认站点链接：
+
+```bash
+sudo rm /etc/nginx/sites-enabled/default
+```
+
+删除前应确认该路径只是 Nginx 默认配置链接，不是项目文件或业务数据。
+
+检查 Nginx 配置：
+
+```bash
+sudo nginx -t
+```
+
+只有看到配置检查成功后，才能重新加载 Nginx：
+
+```bash
+sudo systemctl reload nginx
+```
+
+访问测试：
+
+```text
+http://115.159.47.131/
+http://115.159.47.131/home.html
+```
+
+#### 4.5 跨域配置提醒
+
+当前前端在 `8081` 端口运行时，浏览器请求来源是：
+
+```text
+http://115.159.47.131:8081
+```
+
+切换到 Nginx 的 `80` 端口后，请求来源会变成：
+
+```text
+http://115.159.47.131
+```
+
+如果后端跨域配置只允许带 `:8081` 的地址，Nginx 页面虽然能打开，但商品和服务数据可能加载失败。
+
+因此，正式切换前需要检查后端跨域配置是否允许 `http://115.159.47.131`。如果需要修改，应先说明对本地和线上环境的影响，重新打包后端并重启 systemd 服务。本章不修改后端代码。
+
+#### 4.6 停止旧的 Python 前端
+
+确认 Nginx 页面和数据都正常后，才停止旧的 Python 静态服务器：
+
+```bash
+pkill -f "python3 -m http.server 8081"
+```
+
+然后确认 `8081` 已停止、Nginx 的 `80` 端口仍正常：
+
+```bash
+ss -lntp | grep 8081
+ss -lntp | grep ':80 '
+```
+
+如果 Nginx 尚未验证成功，不要先停止 `8081`，避免线上前端完全无法访问。
+
+### 5. 腾讯云安全组和端口
+
+Nginx 切换完成后，需要确保腾讯云轻量应用服务器防火墙或安全组允许：
+
+- `80`：HTTP 前端访问
+- `22`：SSH 管理
+- `443`：后续 HTTPS
+
+当前前端仍直接请求后端 `8080` 时，`8080` 仍需允许访问。后续如果使用 Nginx 反向代理后端 API，可以再考虑关闭 `8080` 的公网访问。
+
+不要开放 MySQL `3306` 到公网，Nginx 也不要代理 MySQL。
+
+### 6. 推荐切换顺序
+
+为了尽量缩短线上服务中断时间，建议按以下顺序执行：
+
+1. 确认 JAR、Java 17、MySQL 和前端文件正常。
+2. 创建受保护的后端数据库环境变量文件。
+3. 创建并检查 systemd 服务文件。
+4. 停止旧的 nohup 后端。
+5. 启动 systemd 后端，并立即测试两个主要接口。
+6. 安装 Nginx，创建配置并执行 `sudo nginx -t`。
+7. 检查后端跨域是否允许不带 `:8081` 的前端来源。
+8. 重新加载 Nginx，验证首页、商品列表和校园服务列表。
+9. 全部验证成功后，再停止 Python `8081` 前端。
+10. 最后检查 `systemctl` 状态和端口监听情况。
+
+切换完成后的目标状态：
+
+```text
+后端：systemd 管理，监听 8080
+前端：Nginx 管理，监听 80
+数据库：MySQL 仅供服务器本机后端访问
+```
