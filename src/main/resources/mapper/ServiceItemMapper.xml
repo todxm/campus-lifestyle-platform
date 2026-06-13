@@ -12,6 +12,7 @@
         <result column="description" property="description"/>
         <result column="price_info" property="priceInfo"/>
         <result column="contact_wechat" property="contactWechat"/>
+        <result column="image_url" property="imageUrl"/>
         <result column="status" property="status"/>
         <result column="created_time" property="createdTime"/>
     </resultMap>
@@ -34,8 +35,8 @@
     <!-- 插入新服务 -->
     <insert id="insert" parameterType="com.tod.campusmarketbackend.entity.ServiceItem"
             useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO service_item(name, type, description, price_info, contact_wechat, status, created_time)
-        VALUES(#{name}, #{type}, #{description}, #{priceInfo}, #{contactWechat}, 'ON', NOW())
+        INSERT INTO service_item(name, type, description, price_info, contact_wechat, image_url, status, created_time)
+        VALUES(#{name}, #{type}, #{description}, #{priceInfo}, #{contactWechat}, #{imageUrl}, 'ON', NOW())
     </insert>
 
     <!-- 根据关键词和类型搜索服务 -->

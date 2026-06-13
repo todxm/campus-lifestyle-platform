@@ -149,8 +149,36 @@
             background-color: #fff;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
-            padding: 16px;
+            padding: 0;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        /* 服务卡片顶部图片：固定高度并占满卡片，避免手机端变形或不显示 */
+        .service-image,
+        .service-image-placeholder {
+            width: 100%;
+            height: 180px;
+            min-height: 180px;
+            box-sizing: border-box;
+            display: block;
+            background-color: #f3f4f6;
+        }
+
+        .service-image {
+            object-fit: cover;
+        }
+
+        .service-image-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .service-card-content {
+            padding: 16px;
         }
 
         /* 空状态卡片占满列表区域，用更友好的方式引导用户发布服务 */
@@ -310,7 +338,15 @@
             }
 
             .service-card {
-                padding: 16px;
+                width: 100%;
+                padding: 0;
+            }
+
+            .service-image,
+            .service-image-placeholder {
+                width: 100%;
+                height: 160px;
+                min-height: 160px;
             }
 
             .empty-state {
@@ -370,8 +406,11 @@
     </main>
 
     <script>
-        // 后端接口基础地址，后端 Spring Boot 默认运行在 8080 端口
-        const API_BASE_URL = "http://localhost:8080";
+        // 本地页面请求本机后端，部署到服务器后请求当前服务器的 8080 端口
+        const API_HOST = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+            ? "localhost"
+            : window.location.hostname;
+        const API_BASE_URL = "http://" + API_HOST + ":8080";
 
         // 获取页面上的元素，后面会反复使用
         const serviceList = document.getElementById("serviceList");
@@ -517,6 +556,11 @@
                 const card = document.createElement("article");
                 card.className = "service-card";
 
+                // 卡片顶部显示服务图片；没有图片时使用统一占位区域
+                const imageArea = createServiceImage(service);
+                const cardContent = document.createElement("div");
+                cardContent.className = "service-card-content";
+
                 // 使用 textContent 放入后端数据，可以避免特殊字符被当成 HTML 执行
                 const name = document.createElement("h2");
                 name.className = "service-name";
@@ -553,14 +597,41 @@
                     window.location.href = "service-detail.html?id=" + service.id;
                 });
 
-                card.appendChild(name);
-                card.appendChild(priceInfo);
-                card.appendChild(typeList);
-                card.appendChild(description);
-                card.appendChild(contactWechat);
-                card.appendChild(button);
+                cardContent.appendChild(name);
+                cardContent.appendChild(priceInfo);
+                cardContent.appendChild(typeList);
+                cardContent.appendChild(description);
+                cardContent.appendChild(contactWechat);
+                cardContent.appendChild(button);
+                card.appendChild(imageArea);
+                card.appendChild(cardContent);
                 serviceList.appendChild(card);
             });
+        }
+
+        // 创建服务卡片图片；图片地址失效时自动切换为提示区域
+        function createServiceImage(service) {
+            if (!service.imageUrl) {
+                const placeholder = document.createElement("div");
+                placeholder.className = "service-image-placeholder";
+                placeholder.textContent = "暂无图片";
+                return placeholder;
+            }
+
+            const image = document.createElement("img");
+            image.className = "service-image";
+            image.src = service.imageUrl;
+            image.alt = service.name ? service.name + "的服务图片" : "服务图片";
+            image.loading = "eager";
+
+            image.addEventListener("error", function () {
+                const placeholder = document.createElement("div");
+                placeholder.className = "service-image-placeholder";
+                placeholder.textContent = "图片加载失败";
+                image.replaceWith(placeholder);
+            });
+
+            return image;
         }
     </script>
 </body>

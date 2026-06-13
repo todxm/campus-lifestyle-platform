@@ -13,6 +13,10 @@
         .back-button:hover { background-color: #1d4ed8; }
         .message { margin: 12px 0; color: #666; }
         .detail-card { background-color: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 22px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); }
+        /* 服务详情图使用 contain 展示完整图片，避免压缩变形 */
+        .service-image, .service-image-placeholder { width: 100%; max-height: 520px; min-height: 220px; box-sizing: border-box; margin-bottom: 20px; border-radius: 8px; background-color: #f3f4f6; }
+        .service-image { display: block; object-fit: contain; }
+        .service-image-placeholder { display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 14px; }
         .service-name { margin: 0 0 10px; font-size: 26px; font-weight: bold; }
         .service-price { margin: 0 0 18px; color: #dc2626; font-size: 24px; font-weight: bold; }
         .info-row { display: flex; gap: 10px; margin: 10px 0; font-size: 15px; line-height: 1.6; }
@@ -48,6 +52,7 @@
             .page { padding: 16px; }
             .back-button, .offline-button { width: 100%; min-height: 44px; }
             .detail-card { padding: 16px; }
+            .service-image, .service-image-placeholder { min-height: 180px; max-height: 360px; }
             .info-row { display: block; }
             .info-label { width: auto; margin-bottom: 2px; }
             .wechat-content { align-items: stretch; }
@@ -79,8 +84,11 @@
     </main>
 
     <script>
-        // 后端接口基础地址
-        const API_BASE_URL = "http://localhost:8080";
+        // 本地页面请求本机后端，部署到服务器后请求当前服务器的 8080 端口
+        const API_HOST = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+            ? "localhost"
+            : window.location.hostname;
+        const API_BASE_URL = "http://" + API_HOST + ":8080";
 
         const backButton = document.getElementById("backButton");
         const message = document.getElementById("message");
@@ -153,6 +161,7 @@
             priceInfo.className = "service-price";
             priceInfo.textContent = service.priceInfo || "价格面议";
 
+            detailCard.appendChild(createServiceImage(service));
             detailCard.appendChild(name);
             detailCard.appendChild(priceInfo);
             detailCard.appendChild(createInfoRow("服务类型", service.type || "未填写", "badge"));
@@ -160,6 +169,28 @@
             detailCard.appendChild(createWechatRow("联系微信", service.contactWechat));
             // status 仍由后端用于上下架判断，普通用户的详情页不需要展示
             detailCard.appendChild(createInfoRow("发布时间", formatTime(service.createdTime)));
+        }
+
+        // 创建服务详情图片，没有图片时显示“暂无图片”占位
+        function createServiceImage(service) {
+            if (!service.imageUrl) {
+                const placeholder = document.createElement("div");
+                placeholder.className = "service-image-placeholder";
+                placeholder.textContent = "暂无图片";
+                return placeholder;
+            }
+
+            const image = document.createElement("img");
+            image.className = "service-image";
+            image.src = service.imageUrl;
+            image.alt = service.name ? service.name + "的服务图片" : "服务图片";
+            image.addEventListener("error", function () {
+                const placeholder = document.createElement("div");
+                placeholder.className = "service-image-placeholder";
+                placeholder.textContent = "图片加载失败";
+                image.replaceWith(placeholder);
+            });
+            return image;
         }
 
         // 创建微信信息行，并在微信号旁边添加“复制微信”按钮

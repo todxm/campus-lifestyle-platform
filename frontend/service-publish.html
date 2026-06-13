@@ -16,6 +16,9 @@
         label { display: block; margin-bottom: 8px; color: #333; font-weight: bold; }
         input, select, textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid #d7dce5; border-radius: 6px; font-size: 14px; font-family: inherit; background-color: #fff; }
         textarea { min-height: 120px; resize: vertical; line-height: 1.5; }
+        /* 服务图片预览：选择文件后显示，使用 contain 避免图片变形 */
+        .image-preview { display: none; width: 100%; max-height: 320px; box-sizing: border-box; margin-top: 12px; border: 1px solid #e5e7eb; border-radius: 8px; background-color: #f9fafb; object-fit: contain; }
+        .field-help { margin: 8px 0 0; color: #6b7280; font-size: 13px; line-height: 1.5; }
         .submit-button { width: 100%; padding: 12px 0; border: none; border-radius: 6px; background-color: #16a34a; color: #fff; font-size: 16px; cursor: pointer; }
         .submit-button:hover { background-color: #15803d; }
         .submit-button:disabled { background-color: #9ca3af; cursor: not-allowed; }
@@ -102,6 +105,18 @@
                 <input id="wechatInput" type="text" placeholder="例如：nuaa_service2026" required>
             </div>
 
+            <div class="form-group">
+                <label for="imageInput">服务图片（选填）</label>
+                <!-- 第一版只支持单张图片，选择后会在下方显示本地预览 -->
+                <input
+                    id="imageInput"
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                >
+                <p class="field-help">支持 jpg、jpeg、png、webp，单张图片不超过 5MB。</p>
+                <img id="imagePreview" class="image-preview" alt="服务图片预览">
+            </div>
+
             <button id="submitButton" class="submit-button" type="submit">发布服务</button>
         </form>
 
@@ -109,8 +124,13 @@
     </main>
 
     <script>
-        // 后端接口基础地址
-        const API_BASE_URL = "http://localhost:8080";
+        // 本地页面请求本机后端，部署到服务器后请求当前服务器的 8080 端口
+        const API_HOST = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+            ? "localhost"
+            : window.location.hostname;
+        const API_BASE_URL = "http://" + API_HOST + ":8080";
+        const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+        const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
         const backButton = document.getElementById("backButton");
         const publishForm = document.getElementById("publishForm");
@@ -121,6 +141,9 @@
         const descriptionInput = document.getElementById("descriptionInput");
         const priceInfoInput = document.getElementById("priceInfoInput");
         const wechatInput = document.getElementById("wechatInput");
+        const imageInput = document.getElementById("imageInput");
+        const imagePreview = document.getElementById("imagePreview");
+        let previewObjectUrl = "";
 
         // 返回服务列表页
         backButton.addEventListener("click", function () {
@@ -133,7 +156,41 @@
             publishService();
         });
 
-        // 发布服务：POST http://localhost:8080/service-items
+        // 选择图片后先检查格式和大小，再用浏览器临时地址显示预览
+        imageInput.addEventListener("change", function () {
+            const imageFile = imageInput.files[0];
+
+            if (previewObjectUrl) {
+                URL.revokeObjectURL(previewObjectUrl);
+                previewObjectUrl = "";
+            }
+
+            imagePreview.style.display = "none";
+            imagePreview.removeAttribute("src");
+
+            if (!imageFile) {
+                return;
+            }
+
+            if (!ALLOWED_IMAGE_TYPES.includes(imageFile.type)) {
+                imageInput.value = "";
+                showMessage("请选择 jpg、jpeg、png 或 webp 格式的图片", "error");
+                return;
+            }
+
+            if (imageFile.size > MAX_IMAGE_SIZE) {
+                imageInput.value = "";
+                showMessage("服务图片不能超过 5MB", "error");
+                return;
+            }
+
+            previewObjectUrl = URL.createObjectURL(imageFile);
+            imagePreview.src = previewObjectUrl;
+            imagePreview.style.display = "block";
+            showMessage("", "");
+        });
+
+        // 发布服务：如有图片先上传，再 POST /service-items 保存服务和 imageUrl
         async function publishService() {
             // 按钮禁用期间不再提交，避免用户连续点击产生重复请求
             if (submitButton.disabled) {
@@ -145,7 +202,8 @@
                 type: typeInput.value.trim(),
                 description: descriptionInput.value.trim(),
                 priceInfo: priceInfoInput.value.trim(),
-                contactWechat: wechatInput.value.trim()
+                contactWechat: wechatInput.value.trim(),
+                imageUrl: null
             };
 
             // 按顺序检查每个字段，让用户能看到具体、容易理解的错误提示
@@ -184,6 +242,17 @@
                 return;
             }
 
+            const imageFile = imageInput.files[0];
+            if (imageFile && !ALLOWED_IMAGE_TYPES.includes(imageFile.type)) {
+                showMessage("请选择 jpg、jpeg、png 或 webp 格式的图片", "error");
+                return;
+            }
+
+            if (imageFile && imageFile.size > MAX_IMAGE_SIZE) {
+                showMessage("服务图片不能超过 5MB", "error");
+                return;
+            }
+
             submitButton.disabled = true;
             submitButton.textContent = "正在发布...";
             showMessage("正在发布服务...", "");
@@ -191,6 +260,13 @@
             let publishSucceeded = false;
 
             try {
+                // 图片为选填；选择图片时先上传，再把返回地址放入服务 JSON
+                if (imageFile) {
+                    showMessage("正在上传服务图片...", "");
+                    service.imageUrl = await uploadServiceImage(imageFile);
+                }
+
+                showMessage("正在发布服务...", "");
                 const response = await fetch(API_BASE_URL + "/service-items", {
                     method: "POST",
                     headers: {
@@ -211,8 +287,8 @@
                     window.location.href = "service.html";
                 }, 1000);
             } catch (error) {
-                showMessage("服务发布失败，请确认后端服务已经启动。", "error");
-                console.error("请求 POST /service-items 失败：", error);
+                showMessage(error.message || "服务发布失败，请确认后端服务已经启动。", "error");
+                console.error("上传图片或发布服务失败：", error);
             } finally {
                 // 发布失败时允许再次提交；成功时保持禁用，等待页面自动跳转
                 if (!publishSucceeded) {
@@ -220,6 +296,37 @@
                     submitButton.textContent = "发布服务";
                 }
             }
+        }
+
+        // 使用 FormData 上传图片，字段名 file 与后端 @RequestParam("file") 保持一致
+        async function uploadServiceImage(imageFile) {
+            const formData = new FormData();
+            formData.append("file", imageFile);
+
+            const response = await fetch(API_BASE_URL + "/upload/service-image", {
+                method: "POST",
+                body: formData
+            });
+
+            if (!response.ok) {
+                let errorMessage = "图片上传失败，请检查图片格式和大小";
+                try {
+                    const errorData = await response.json();
+                    if (errorData.message) {
+                        errorMessage = errorData.message;
+                    }
+                } catch (error) {
+                    // 后端没有返回 JSON 时继续使用上面的中文提示
+                }
+                throw new Error(errorMessage);
+            }
+
+            const uploadResult = await response.json();
+            if (!uploadResult.imageUrl) {
+                throw new Error("后端没有返回图片地址");
+            }
+
+            return uploadResult.imageUrl;
         }
 
         // 显示提示信息

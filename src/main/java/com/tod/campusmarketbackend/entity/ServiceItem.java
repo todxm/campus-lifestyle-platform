@@ -29,6 +29,9 @@ public class ServiceItem {
     // 联系微信，对应数据库 contact_wechat
     private String contactWechat;
 
+    // 服务图片访问地址，对应数据库 image_url
+    private String imageUrl;
+
     // 服务状态，对应数据库 status
     private String status;
 
