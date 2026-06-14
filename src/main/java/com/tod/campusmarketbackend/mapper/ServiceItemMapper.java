@@ -27,4 +27,7 @@ public interface ServiceItemMapper {
 
     // 下架服务
     int offlineById(@Param("id") Long id);
+
+    // 记录一次用户点击联系按钮
+    int incrementContactClickCount(@Param("id") Long id);
 }

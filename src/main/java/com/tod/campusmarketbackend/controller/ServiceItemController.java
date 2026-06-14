@@ -72,4 +72,13 @@ public class ServiceItemController {
             return "服务下架失败";
         }
     }
+
+    /**
+     * 记录用户点击联系按钮，便于后续了解服务的咨询热度。
+     */
+    @PutMapping("/{id}/contact-click")
+    public String recordContactClick(@PathVariable Long id) {
+        boolean success = serviceItemService.recordContactClick(id);
+        return success ? "联系次数记录成功" : "联系次数记录失败";
+    }
 }

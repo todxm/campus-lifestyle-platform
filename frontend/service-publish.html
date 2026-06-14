@@ -19,6 +19,7 @@
         /* 服务图片预览：选择文件后显示，使用 contain 避免图片变形 */
         .image-preview { display: none; width: 100%; max-height: 320px; box-sizing: border-box; margin-top: 12px; border: 1px solid #e5e7eb; border-radius: 8px; background-color: #f9fafb; object-fit: contain; }
         .field-help { margin: 8px 0 0; color: #6b7280; font-size: 13px; line-height: 1.5; }
+        .conditional-field.hidden { display: none; }
         .submit-button { width: 100%; padding: 12px 0; border: none; border-radius: 6px; background-color: #16a34a; color: #fff; font-size: 16px; cursor: pointer; }
         .submit-button:hover { background-color: #15803d; }
         .submit-button:disabled { background-color: #9ca3af; cursor: not-allowed; }
@@ -91,6 +92,52 @@
             </div>
 
             <div class="form-group">
+                <label for="merchantTypeInput">服务主体类型</label>
+                <select id="merchantTypeInput" required>
+                    <option value="">请选择服务主体</option>
+                    <option value="个人同学">个人同学</option>
+                    <option value="校园商家">校园商家</option>
+                    <option value="中介/机构">中介/机构</option>
+                    <option value="团队/工作室">团队/工作室</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="serviceCategoryInput">服务细分类别</label>
+                <select id="serviceCategoryInput" required>
+                    <option value="">请选择细分类别</option>
+                    <option value="驾校/考证">驾校/考证</option>
+                    <option value="校园卡/宽带">校园卡/宽带</option>
+                    <option value="兼职招聘">兼职招聘</option>
+                    <option value="打印复印">打印复印</option>
+                    <option value="家教培训">家教培训</option>
+                    <option value="生活服务">生活服务</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="featuredInput">推荐展示</label>
+                <select id="featuredInput">
+                    <option value="0">普通服务</option>
+                    <option value="1">推荐服务</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="verifiedInput">商家认证</label>
+                <select id="verifiedInput">
+                    <option value="0">未认证</option>
+                    <option value="1">认证商家</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="promotionLabelInput">推广标签（选填）</label>
+                <input id="promotionLabelInput" type="text" maxlength="50" placeholder="例如：推荐、热门、新生优惠、限时活动">
+            </div>
+
+            <div class="form-group">
                 <label for="descriptionInput">服务说明</label>
                 <textarea id="descriptionInput" placeholder="例如：可代拿校外快递，晚饭后送到宿舍楼下" required></textarea>
             </div>
@@ -103,6 +150,27 @@
             <div class="form-group">
                 <label for="wechatInput">联系微信</label>
                 <input id="wechatInput" type="text" placeholder="例如：nuaa_service2026" required>
+            </div>
+
+            <div class="form-group">
+                <label for="contactModeInput">联系方式模式</label>
+                <select id="contactModeInput" required>
+                    <option value="DIRECT">直接联系商家</option>
+                    <option value="PLATFORM">平台商业号中转</option>
+                    <option value="CODE">直接联系商家加暗号</option>
+                </select>
+            </div>
+
+            <div id="contactCodeGroup" class="form-group conditional-field hidden">
+                <label for="contactCodeInput">咨询暗号</label>
+                <input id="contactCodeInput" type="text" maxlength="50" value="南航小站" placeholder="例如：南航小站">
+                <p class="field-help">用户复制商家微信后，页面会提醒他发送这个暗号。</p>
+            </div>
+
+            <div id="platformContactGroup" class="form-group conditional-field hidden">
+                <label for="platformContactInput">平台商业号联系方式</label>
+                <input id="platformContactInput" type="text" maxlength="100" placeholder="例如：nuaa_platform">
+                <p class="field-help">选择平台中转时，详情页会优先复制这里填写的联系方式。</p>
             </div>
 
             <div class="form-group">
@@ -138,9 +206,19 @@
         const message = document.getElementById("message");
         const nameInput = document.getElementById("nameInput");
         const typeInput = document.getElementById("typeInput");
+        const merchantTypeInput = document.getElementById("merchantTypeInput");
+        const serviceCategoryInput = document.getElementById("serviceCategoryInput");
+        const featuredInput = document.getElementById("featuredInput");
+        const verifiedInput = document.getElementById("verifiedInput");
+        const promotionLabelInput = document.getElementById("promotionLabelInput");
         const descriptionInput = document.getElementById("descriptionInput");
         const priceInfoInput = document.getElementById("priceInfoInput");
         const wechatInput = document.getElementById("wechatInput");
+        const contactModeInput = document.getElementById("contactModeInput");
+        const contactCodeInput = document.getElementById("contactCodeInput");
+        const platformContactInput = document.getElementById("platformContactInput");
+        const contactCodeGroup = document.getElementById("contactCodeGroup");
+        const platformContactGroup = document.getElementById("platformContactGroup");
         const imageInput = document.getElementById("imageInput");
         const imagePreview = document.getElementById("imagePreview");
         let previewObjectUrl = "";
@@ -155,6 +233,10 @@
             event.preventDefault();
             publishService();
         });
+
+        // 联系方式模式变化时，只显示当前模式真正需要填写的字段。
+        contactModeInput.addEventListener("change", updateContactFields);
+        updateContactFields();
 
         // 选择图片后先检查格式和大小，再用浏览器临时地址显示预览
         imageInput.addEventListener("change", function () {
@@ -200,9 +282,18 @@
             const service = {
                 name: nameInput.value.trim(),
                 type: typeInput.value.trim(),
+                merchantType: merchantTypeInput.value,
+                serviceCategory: serviceCategoryInput.value,
+                isFeatured: Number(featuredInput.value),
+                isVerified: Number(verifiedInput.value),
+                promotionLabel: promotionLabelInput.value.trim(),
                 description: descriptionInput.value.trim(),
                 priceInfo: priceInfoInput.value.trim(),
                 contactWechat: wechatInput.value.trim(),
+                contactMode: contactModeInput.value,
+                contactCode: contactCodeInput.value.trim(),
+                platformContact: platformContactInput.value.trim(),
+                contactClickCount: 0,
                 imageUrl: null
             };
 
@@ -219,6 +310,16 @@
 
             if (!service.type) {
                 showMessage("请选择服务类型", "error");
+                return;
+            }
+
+            if (!service.merchantType) {
+                showMessage("请选择服务主体类型", "error");
+                return;
+            }
+
+            if (!service.serviceCategory) {
+                showMessage("请选择服务细分类别", "error");
                 return;
             }
 
@@ -239,6 +340,16 @@
 
             if (!service.contactWechat) {
                 showMessage("请输入联系微信", "error");
+                return;
+            }
+
+            if (service.contactMode === "PLATFORM" && !service.platformContact) {
+                showMessage("请输入平台商业号联系方式", "error");
+                return;
+            }
+
+            if (service.contactMode === "CODE" && !service.contactCode) {
+                showMessage("请输入咨询暗号", "error");
                 return;
             }
 
@@ -327,6 +438,12 @@
             }
 
             return uploadResult.imageUrl;
+        }
+
+        function updateContactFields() {
+            const mode = contactModeInput.value;
+            contactCodeGroup.classList.toggle("hidden", mode !== "CODE");
+            platformContactGroup.classList.toggle("hidden", mode !== "PLATFORM");
         }
 
         // 显示提示信息

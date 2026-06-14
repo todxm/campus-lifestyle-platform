@@ -35,6 +35,19 @@ public class ServiceItemService {
      * 添加新服务
      */
     public void addServiceItem(ServiceItem serviceItem) {
+        // 兼容旧前端或手动调用接口时没有传入新字段的情况。
+        if (serviceItem.getIsFeatured() == null) {
+            serviceItem.setIsFeatured(0);
+        }
+        if (serviceItem.getIsVerified() == null) {
+            serviceItem.setIsVerified(0);
+        }
+        if (serviceItem.getContactClickCount() == null) {
+            serviceItem.setContactClickCount(0);
+        }
+        if (serviceItem.getContactMode() == null || serviceItem.getContactMode().isBlank()) {
+            serviceItem.setContactMode("DIRECT");
+        }
         serviceItemMapper.insert(serviceItem);
     }
 
@@ -50,5 +63,12 @@ public class ServiceItemService {
      */
     public boolean offlineServiceItem(Long id) {
         return serviceItemMapper.offlineById(id) > 0;
+    }
+
+    /**
+     * 联系按钮每点击一次，数据库中的联系次数加 1。
+     */
+    public boolean recordContactClick(Long id) {
+        return serviceItemMapper.incrementContactClickCount(id) > 0;
     }
 }

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南航上海路校区常用地点指南</title>
+    <style>
+        /* 当前版本只做静态地点指南，后续可以逐步补充真实位置说明 */
+        body {
+            margin: 0;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+            background-color: #f5f7fb;
+            color: #222;
+        }
+
+        .site-nav {
+            background-color: #fff;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .site-nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .site-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .home-link {
+            padding: 8px 14px;
+            border-radius: 6px;
+            background-color: #2563eb;
+            color: #fff;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .home-link:hover {
+            background-color: #1d4ed8;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .hero {
+            margin-bottom: 24px;
+            padding: 28px;
+            border: 1px solid #dbe3e8;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+        }
+
+        .hero-label {
+            display: inline-block;
+            margin-bottom: 12px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            background-color: #ccfbf1;
+            color: #0f766e;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .hero h1 {
+            margin: 0 0 12px;
+            font-size: 32px;
+            color: #111827;
+        }
+
+        .hero p {
+            max-width: 800px;
+            margin: 0;
+            color: #4b5563;
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .guide-section {
+            margin-top: 24px;
+        }
+
+        .section-heading {
+            margin-bottom: 14px;
+        }
+
+        .section-heading h2 {
+            margin: 0 0 6px;
+            font-size: 23px;
+            color: #111827;
+        }
+
+        .section-heading p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* 地点卡片使用稳定的两列布局，内容较长时也不会互相挤压 */
+        .location-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .location-card {
+            padding: 18px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .location-card h3 {
+            margin: 0 0 8px;
+            font-size: 18px;
+            color: #111827;
+        }
+
+        .location-card p {
+            margin: 0;
+            color: #4b5563;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .tip-list {
+            margin: 0;
+            padding: 20px 20px 20px 40px;
+            border: 1px solid #99f6e4;
+            border-radius: 8px;
+            background-color: #f0fdfa;
+            color: #374151;
+            line-height: 1.9;
+        }
+
+        .page-actions {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 28px;
+            padding-top: 22px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .action-link {
+            min-height: 44px;
+            box-sizing: border-box;
+            padding: 11px 14px;
+            border-radius: 6px;
+            background-color: #2563eb;
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .action-link.service {
+            background-color: #16a34a;
+        }
+
+        .action-link.home {
+            background-color: #4b5563;
+        }
+
+        .page-note {
+            margin: 18px 0 0;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        /* 手机端将地点和底部入口改为单列，按钮保持便于触摸的高度 */
+        @media (max-width: 600px) {
+            .site-nav-inner {
+                padding: 12px 16px;
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .home-link {
+                width: 100%;
+                min-height: 44px;
+                box-sizing: border-box;
+                text-align: center;
+            }
+
+            .page {
+                padding: 22px 16px;
+            }
+
+            .hero {
+                padding: 20px 16px;
+            }
+
+            .hero h1 {
+                font-size: 27px;
+            }
+
+            .location-grid,
+            .page-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .location-card {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="site-nav">
+        <div class="site-nav-inner">
+            <div class="site-title">南航上海路校园生活小站</div>
+            <a class="home-link" href="home.html">返回首页</a>
+        </div>
+    </nav>
+
+    <main class="page">
+        <section class="hero">
+            <span class="hero-label">校园常用地点</span>
+            <h1>南航上海路校区常用地点指南</h1>
+            <p>
+                面向南昌航空大学上海路校区新生和在校生，先整理校园内外常用地点和使用场景。
+                当前内容为占位指南，后续可以根据真实校区情况补充具体楼栋、方向和开放时间。
+            </p>
+        </section>
+
+        <section class="guide-section">
+            <div class="section-heading">
+                <h2>校园主要地点</h2>
+                <p>第一次到校时，建议先建立对学习区、生活区和运动区的大致认识。</p>
+            </div>
+            <div class="location-grid">
+                <article class="location-card">
+                    <h3>校门</h3>
+                    <p>记录常用校门名称、开放时间和进出要求，方便打车、接送和收取校外物品。</p>
+                </article>
+                <article class="location-card">
+                    <h3>教学楼</h3>
+                    <p>根据课表提前确认教学楼和教室位置，开学第一周建议预留更多找路时间。</p>
+                </article>
+                <article class="location-card">
+                    <h3>宿舍区</h3>
+                    <p>熟悉所在宿舍楼、宿管值班位置、热水和公共设施的使用说明。</p>
+                </article>
+                <article class="location-card">
+                    <h3>食堂</h3>
+                    <p>了解食堂所在区域、主要营业时段，以及校园卡或其他支付方式。</p>
+                </article>
+                <article class="location-card">
+                    <h3>操场 / 运动区域</h3>
+                    <p>可补充操场、球场和其他运动区域的位置及开放时间。</p>
+                </article>
+                <article class="location-card">
+                    <h3>图书 / 自习区域</h3>
+                    <p>记录图书阅览、自习教室和安静学习区域，以及可能需要预约的场所。</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="guide-section">
+            <div class="section-heading">
+                <h2>生活常用地点</h2>
+                <p>这些地点通常是住宿生活中使用频率最高的一批，可以优先熟悉。</p>
+            </div>
+            <div class="location-grid">
+                <article class="location-card">
+                    <h3>快递点</h3>
+                    <p>后续可补充各快递取件位置、营业时间、取件码使用方式和大件快递说明。</p>
+                </article>
+                <article class="location-card">
+                    <h3>打印店</h3>
+                    <p>适合打印课件、报名表和考试材料，打印前注意确认格式、页码和份数。</p>
+                </article>
+                <article class="location-card">
+                    <h3>超市 / 便利店</h3>
+                    <p>用于购买饮用水、洗漱用品和日常消耗品，可补充校内外常用选择。</p>
+                </article>
+                <article class="location-card">
+                    <h3>理发店</h3>
+                    <p>后续可以根据同学反馈补充附近常用店铺和大致价格范围。</p>
+                </article>
+                <article class="location-card">
+                    <h3>水果店</h3>
+                    <p>可记录校内外常见购买地点、营业时间和配送方式。</p>
+                </article>
+                <article class="location-card">
+                    <h3>校园卡 / 宽带办理地点</h3>
+                    <p>办理前先确认官方说明、套餐期限和注销规则，不要因为催促而仓促选择。</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="guide-section">
+            <div class="section-heading">
+                <h2>新生报到常用地点</h2>
+                <p>具体安排每年可能变化，请以学校和学院发布的当年通知为准。</p>
+            </div>
+            <div class="location-grid">
+                <article class="location-card">
+                    <h3>报到点</h3>
+                    <p>提前确认学院接待点、报到时间和需要携带的证件材料。</p>
+                </article>
+                <article class="location-card">
+                    <h3>宿舍办理</h3>
+                    <p>了解入住登记、钥匙领取、宿舍检查以及床位信息确认流程。</p>
+                </article>
+                <article class="location-card">
+                    <h3>生活用品购买</h3>
+                    <p>先准备基本用品，大件物品可以看完宿舍实际空间后再决定是否购买。</p>
+                </article>
+                <article class="location-card">
+                    <h3>快递收货说明</h3>
+                    <p>填写收货地址前确认校区、快递点和联系电话，避免寄错校区。</p>
+                </article>
+                <article class="location-card">
+                    <h3>打印资料位置</h3>
+                    <p>报到和开学初可能需要打印复印材料，建议提前了解附近打印点。</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="guide-section">
+            <div class="section-heading">
+                <h2>周边生活提示</h2>
+                <p>先把高频需求解决清楚，再慢慢熟悉更多校园生活信息。</p>
+            </div>
+            <ul class="tip-list">
+                <li>刚来学校先熟悉宿舍、食堂、快递点和打印店。</li>
+                <li>需要办理校园卡或宽带时不要急着决定，可以先了解套餐、期限和注销规则。</li>
+                <li>打印资料、购买生活用品和取快递，是新生最常见的几个生活场景。</li>
+                <li>涉及缴费、证件和账号信息时，优先通过学校官方渠道核实。</li>
+            </ul>
+        </section>
+
+        <div class="page-actions">
+            <a class="action-link" href="freshman.html">查看新生指南</a>
+            <a class="action-link service" href="service.html">查看校园服务</a>
+            <a class="action-link home" href="home.html">返回首页</a>
+        </div>
+
+        <p class="page-note">本页目前不接入第三方地图，地点信息将在后续根据真实校区情况逐步补充。</p>
+    </main>
+</body>
+</html>

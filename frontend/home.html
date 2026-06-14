@@ -13,7 +13,7 @@
             color: #222;
         }
 
-        /* 首页顶部只展示品牌标题，入口选择交给页面中间的两张大卡片 */
+        /* 首页顶部只展示品牌标题，入口选择交给页面中间的功能卡片 */
         .site-nav {
             background-color: #fff;
             border-bottom: 1px solid #e5e7eb;
@@ -68,7 +68,7 @@
             line-height: 1.7;
         }
 
-        /* 入口卡片容器：电脑端两列，手机端会变成单列 */
+        /* 入口卡片容器：多个入口在电脑端使用两列，手机端变成单列 */
         .entry-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -118,6 +118,18 @@
 
         .entry-card.service .entry-button {
             background-color: #16a34a;
+        }
+
+        .entry-card.freshman .entry-button {
+            background-color: #d97706;
+        }
+
+        .entry-card.merchant .entry-button {
+            background-color: #4f46e5;
+        }
+
+        .entry-card.map .entry-button {
+            background-color: #0f766e;
         }
 
         /* 页面底部说明当前版本和项目阶段 */
@@ -226,10 +238,37 @@
                 </div>
                 <span class="entry-button">进入校园服务</span>
             </a>
+
+            <!-- 新生指南是静态信任入口，帮助新同学快速了解校园生活信息 -->
+            <a class="entry-card freshman" href="freshman.html">
+                <div>
+                    <h2>新生指南</h2>
+                    <p>查看报到、宿舍用品、校园卡、宽带和校园生活避坑提醒。</p>
+                </div>
+                <span class="entry-button">查看新生指南</span>
+            </a>
+
+            <!-- 商家合作入口用于介绍平台能力，不会影响学生使用已有模块 -->
+            <a class="entry-card merchant" href="merchant.html">
+                <div>
+                    <h2>商家合作</h2>
+                    <p>面向校区周边商家和校园服务方，了解服务展示、认证推荐与合作方式。</p>
+                </div>
+                <span class="entry-button">了解合作方式</span>
+            </a>
+
+            <!-- 校园地图暂时以常用地点指南呈现，不接入第三方地图服务 -->
+            <a class="entry-card map" href="campus-map.html">
+                <div>
+                    <h2>校园地图</h2>
+                    <p>快速了解校门、宿舍、食堂、快递点、打印店和其他常用地点。</p>
+                </div>
+                <span class="entry-button">查看地点指南</span>
+            </a>
         </section>
 
         <footer class="page-footer">
-            <p class="version">当前版本：V0.1 MVP</p>
+            <p class="version">当前版本：V0.2 本地开发版</p>
             <p class="version-tip">当前为校园生活小站早期测试版本，功能会持续优化。</p>
             <!-- 反馈入口放在页面底部，不影响两个主要模块入口 -->
             <a class="feedback-link" href="feedback.html">反馈建议</a>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南航上海路新生指南</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+            background-color: #f5f7fb;
+            color: #222;
+        }
+
+        .site-nav {
+            background-color: #fff;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .site-nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .site-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .home-link {
+            padding: 8px 12px;
+            border-radius: 6px;
+            background-color: #2563eb;
+            color: #fff;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .hero {
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            margin: 0 0 10px;
+            font-size: 32px;
+            color: #111827;
+        }
+
+        .hero p {
+            max-width: 760px;
+            margin: 0;
+            color: #6b7280;
+            line-height: 1.7;
+        }
+
+        /* 指南卡片使用两列布局，手机端自动变成单列 */
+        .guide-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .guide-card {
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .guide-card h2 {
+            margin: 0 0 10px;
+            font-size: 20px;
+            color: #111827;
+        }
+
+        .guide-card p,
+        .guide-card ul {
+            margin: 0;
+            color: #4b5563;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .guide-card ul {
+            padding-left: 20px;
+        }
+
+        .guide-link {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 9px 14px;
+            border-radius: 6px;
+            background-color: #2563eb;
+            color: #fff;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .guide-link.service {
+            background-color: #16a34a;
+        }
+
+        .guide-link.map {
+            background-color: #0f766e;
+        }
+
+        @media (max-width: 600px) {
+            .site-nav-inner {
+                padding: 12px 16px;
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .home-link {
+                width: 100%;
+                box-sizing: border-box;
+                min-height: 44px;
+                text-align: center;
+            }
+
+            .page {
+                padding: 24px 16px;
+            }
+
+            .hero h1 {
+                font-size: 27px;
+            }
+
+            .guide-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .guide-card {
+                padding: 16px;
+            }
+
+            .guide-link {
+                width: 100%;
+                box-sizing: border-box;
+                min-height: 44px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="site-nav">
+        <div class="site-nav-inner">
+            <div class="site-title">南航上海路校园生活小站</div>
+            <a class="home-link" href="home.html">返回首页</a>
+        </div>
+    </nav>
+
+    <main class="page">
+        <section class="hero">
+            <h1>南航上海路新生指南</h1>
+            <p>先整理一份能直接用上的校园生活清单。具体报到安排请以学校和学院发布的最新通知为准。</p>
+        </section>
+
+        <section class="guide-grid">
+            <article class="guide-card">
+                <h2>报到注意事项</h2>
+                <ul>
+                    <li>提前确认报到时间、校区地址和学院接待点。</li>
+                    <li>准备录取通知书、身份证及学校要求的材料。</li>
+                    <li>重要缴费和通知只通过学校官方渠道核实。</li>
+                </ul>
+            </article>
+
+            <article class="guide-card">
+                <h2>宿舍用品清单</h2>
+                <p>优先准备床上用品、插线板、台灯、衣架、洗漱用品和常用药。大件物品可以到校后确认宿舍实际情况再购买。</p>
+            </article>
+
+            <article id="campus-map" class="guide-card">
+                <h2>校园地图 / 常用地点指南</h2>
+                <p>先熟悉校门、宿舍、食堂、教学楼、快递点和打印店等常用地点，减少刚到校时来回找路。</p>
+                <a class="guide-link map" href="campus-map.html">查看常用地点</a>
+            </article>
+
+            <article class="guide-card">
+                <h2>校园卡 / 宽带提醒</h2>
+                <p>办理前先确认套餐价格、合约期限和注销方式。不要把验证码、身份证照片随意发给无法核实身份的人。</p>
+                <a class="guide-link service" href="service.html">查看校园服务</a>
+            </article>
+
+            <article class="guide-card">
+                <h2>驾校 / 兼职避坑</h2>
+                <p>驾校重点确认训练地点、考试费用和退费规则；兼职不要先交押金，不参与来源不明的刷单、代付或账号出租。</p>
+                <a class="guide-link service" href="service.html">查看相关服务</a>
+            </article>
+
+            <article class="guide-card">
+                <h2>二手好物入口</h2>
+                <p>教材、台灯、显示器和宿舍用品可以先看看同学发布的闲置，联系前确认成色、价格和交付地点。</p>
+                <a class="guide-link" href="index.html">进入二手闲置</a>
+            </article>
+
+            <article class="guide-card">
+                <h2>校园服务入口</h2>
+                <p>跑腿代拿、打印复印、电脑维修、校园卡和宽带等信息集中在校园服务模块，注意识别认证与联系方式。</p>
+                <a class="guide-link service" href="service.html">进入校园服务</a>
+            </article>
+        </section>
+    </main>
+</body>
+</html>

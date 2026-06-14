@@ -13,6 +13,15 @@
         <result column="price_info" property="priceInfo"/>
         <result column="contact_wechat" property="contactWechat"/>
         <result column="image_url" property="imageUrl"/>
+        <result column="merchant_type" property="merchantType"/>
+        <result column="service_category" property="serviceCategory"/>
+        <result column="is_featured" property="isFeatured"/>
+        <result column="is_verified" property="isVerified"/>
+        <result column="promotion_label" property="promotionLabel"/>
+        <result column="contact_mode" property="contactMode"/>
+        <result column="contact_code" property="contactCode"/>
+        <result column="platform_contact" property="platformContact"/>
+        <result column="contact_click_count" property="contactClickCount"/>
         <result column="status" property="status"/>
         <result column="created_time" property="createdTime"/>
     </resultMap>
@@ -22,7 +31,7 @@
         SELECT *
         FROM service_item
         WHERE status = 'ON'
-        ORDER BY created_time DESC
+        ORDER BY COALESCE(is_featured, 0) DESC, created_time DESC
     </select>
 
     <!-- 根据 ID 查询服务详情 -->
@@ -35,8 +44,18 @@
     <!-- 插入新服务 -->
     <insert id="insert" parameterType="com.tod.campusmarketbackend.entity.ServiceItem"
             useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO service_item(name, type, description, price_info, contact_wechat, image_url, status, created_time)
-        VALUES(#{name}, #{type}, #{description}, #{priceInfo}, #{contactWechat}, #{imageUrl}, 'ON', NOW())
+        INSERT INTO service_item(
+            name, type, description, price_info, contact_wechat, image_url,
+            merchant_type, service_category, is_featured, is_verified,
+            promotion_label, contact_mode, contact_code, platform_contact,
+            contact_click_count, status, created_time
+        )
+        VALUES(
+            #{name}, #{type}, #{description}, #{priceInfo}, #{contactWechat}, #{imageUrl},
+            #{merchantType}, #{serviceCategory}, #{isFeatured}, #{isVerified},
+            #{promotionLabel}, #{contactMode}, #{contactCode}, #{platformContact},
+            #{contactClickCount}, 'ON', NOW()
+        )
     </insert>
 
     <!-- 根据关键词和类型搜索服务 -->
@@ -50,13 +69,20 @@
         <if test="type != null and type != ''">
             AND type = #{type}
         </if>
-        ORDER BY created_time DESC
+        ORDER BY COALESCE(is_featured, 0) DESC, created_time DESC
     </select>
 
     <!-- 下架服务 -->
     <update id="offlineById">
         UPDATE service_item
         SET status = 'OFF'
+        WHERE id = #{id}
+    </update>
+
+    <!-- 用户每点击一次联系按钮，联系次数加 1 -->
+    <update id="incrementContactClickCount">
+        UPDATE service_item
+        SET contact_click_count = COALESCE(contact_click_count, 0) + 1
         WHERE id = #{id}
     </update>
 

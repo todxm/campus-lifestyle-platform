@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南航上海路校园服务合作</title>
+    <style>
+        /* 页面基础样式与校园生活小站其他页面保持一致 */
+        body {
+            margin: 0;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
+            background-color: #f5f7fb;
+            color: #222;
+        }
+
+        .site-nav {
+            background-color: #fff;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .site-nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .site-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .home-link {
+            padding: 8px 14px;
+            border-radius: 6px;
+            background-color: #2563eb;
+            color: #fff;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .home-link:hover {
+            background-color: #1d4ed8;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 34px 24px;
+        }
+
+        /* 首屏直接说明合作对象和平台用途，避免使用夸张营销文案 */
+        .hero {
+            padding: 30px;
+            border: 1px solid #dbe3f0;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+        }
+
+        .hero-label {
+            display: inline-block;
+            margin-bottom: 12px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            background-color: #eef2ff;
+            color: #4338ca;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .hero h1 {
+            margin: 0 0 14px;
+            font-size: 34px;
+            color: #111827;
+        }
+
+        .hero p {
+            max-width: 820px;
+            margin: 0;
+            color: #4b5563;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .section {
+            margin-top: 26px;
+        }
+
+        .section-heading {
+            margin-bottom: 14px;
+        }
+
+        .section-heading h2 {
+            margin: 0 0 7px;
+            font-size: 24px;
+            color: #111827;
+        }
+
+        .section-heading p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* 可合作类型使用标签展示，方便商家快速判断是否适合 */
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+
+        .category-tag {
+            padding: 8px 12px;
+            border-radius: 6px;
+            background-color: #eef2ff;
+            color: #3730a3;
+            font-size: 14px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .info-card {
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .info-card h3 {
+            margin: 0 0 8px;
+            font-size: 18px;
+            color: #111827;
+        }
+
+        .info-card p {
+            margin: 0;
+            color: #4b5563;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .contact-section {
+            margin-top: 28px;
+            padding: 24px;
+            border: 1px solid #c7d2fe;
+            border-radius: 8px;
+            background-color: #eef2ff;
+        }
+
+        .contact-section h2 {
+            margin: 0 0 8px;
+            font-size: 22px;
+            color: #1e1b4b;
+        }
+
+        .contact-section p {
+            margin: 0;
+            color: #4338ca;
+            line-height: 1.7;
+        }
+
+        .contact-value {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 10px 14px;
+            border: 1px solid #a5b4fc;
+            border-radius: 6px;
+            background-color: #fff;
+            color: #312e81;
+            font-weight: bold;
+            word-break: break-word;
+        }
+
+        .page-note {
+            margin: 20px 0 0;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        /* 手机端统一改为单列，并让返回按钮占满可用宽度 */
+        @media (max-width: 600px) {
+            .site-nav-inner {
+                padding: 12px 16px;
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .home-link {
+                width: 100%;
+                min-height: 44px;
+                box-sizing: border-box;
+                text-align: center;
+            }
+
+            .page {
+                padding: 22px 16px;
+            }
+
+            .hero {
+                padding: 20px 16px;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .hero p {
+                font-size: 15px;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-list,
+            .info-card,
+            .contact-section {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="site-nav">
+        <div class="site-nav-inner">
+            <div class="site-title">南航上海路校园生活小站</div>
+            <a class="home-link" href="home.html">返回首页</a>
+        </div>
+    </nav>
+
+    <main class="page">
+        <section class="hero">
+            <span class="hero-label">校园服务合作</span>
+            <h1>南航上海路校园服务合作</h1>
+            <p>
+                面向本校区周边商家和校园服务方，帮助合适的服务信息触达南昌航空大学上海路校区学生。
+                平台目前包含二手交易、新生指南和校园服务等模块，并处于早期合作测试阶段。
+            </p>
+        </section>
+
+        <section class="section">
+            <div class="section-heading">
+                <h2>适合合作的服务类型</h2>
+                <p>优先展示与学生学习、生活和新生入学直接相关的真实服务。</p>
+            </div>
+            <div class="category-list">
+                <span class="category-tag">驾校 / 考证</span>
+                <span class="category-tag">校园卡 / 宽带</span>
+                <span class="category-tag">兼职招聘</span>
+                <span class="category-tag">打印复印</span>
+                <span class="category-tag">家教培训</span>
+                <span class="category-tag">生活服务</span>
+                <span class="category-tag">新生服务</span>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-heading">
+                <h2>合作方式</h2>
+                <p>可以先从低成本试用开始，再根据服务类型和实际反馈选择后续方式。</p>
+            </div>
+            <div class="content-grid">
+                <article class="info-card">
+                    <h3>免费试用展示</h3>
+                    <p>在早期测试阶段提交基础服务资料，验证学生是否有真实需求。</p>
+                </article>
+                <article class="info-card">
+                    <h3>推荐服务展示</h3>
+                    <p>使用推荐标签和优先排序，让重点服务更容易被学生看到。</p>
+                </article>
+                <article class="info-card">
+                    <h3>认证商家展示</h3>
+                    <p>在核实基础信息后展示认证标识，帮助学生识别服务主体。</p>
+                </article>
+                <article class="info-card">
+                    <h3>分类置顶</h3>
+                    <p>在对应服务分类中优先展示适合当前阶段的合作内容。</p>
+                </article>
+                <article class="info-card">
+                    <h3>平台商业号代咨询</h3>
+                    <p>高价值服务可先由平台商业号承接咨询，再转交给合作方跟进。</p>
+                </article>
+                <article class="info-card">
+                    <h3>按线索 / 成交合作</h3>
+                    <p>对适合追踪转化的服务，可根据有效咨询或实际成交讨论合作。</p>
+                </article>
+                <article class="info-card">
+                    <h3>一次性宣传合作</h3>
+                    <p>适用于新生季、开学季和限时活动等有明确时间范围的宣传。</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-heading">
+                <h2>平台优势</h2>
+                <p>当前能力围绕校区场景和学生信任逐步建设，不追求泛化流量。</p>
+            </div>
+            <div class="content-grid">
+                <article class="info-card">
+                    <h3>校区人群更明确</h3>
+                    <p>平台主要面向南昌航空大学上海路校区学生，服务信息更贴近实际校园生活。</p>
+                </article>
+                <article class="info-card">
+                    <h3>自然访问入口</h3>
+                    <p>二手交易模块可以承接教材、数码和宿舍用品等日常访问需求。</p>
+                </article>
+                <article class="info-card">
+                    <h3>新生信任入口</h3>
+                    <p>新生指南提供报到、宿舍、校园卡和避坑信息，逐步建立平台认知。</p>
+                </article>
+                <article class="info-card">
+                    <h3>服务展示能力</h3>
+                    <p>服务页支持推荐、认证、推广标签、图片和不同联系方式模式。</p>
+                </article>
+                <article class="info-card">
+                    <h3>联系数据记录</h3>
+                    <p>平台可以记录联系按钮点击次数，为后续判断服务关注度提供参考。</p>
+                </article>
+                <article class="info-card">
+                    <h3>高价值服务中转</h3>
+                    <p>驾校、宽带等服务可以通过平台商业号中转，减少联系方式直接暴露。</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="contact-section">
+            <h2>联系合作</h2>
+            <p>合作前可以先介绍服务内容、价格范围、服务区域和可提供的学生优惠。</p>
+            <!-- 当前只使用占位文字，后续确认商业号后再自行替换 -->
+            <div class="contact-value">合作请联系平台商业号：请填写平台商业号微信</div>
+        </section>
+
+        <p class="page-note">当前页面为 V0.2 本地开发阶段的合作介绍页，具体合作方式以后续沟通为准。</p>
+    </main>
+</body>
+</html>

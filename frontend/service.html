@@ -154,6 +154,12 @@
             overflow: hidden;
         }
 
+        /* 推荐服务使用克制的金色边框，既突出又不会压过主要内容 */
+        .service-card.featured {
+            border-color: #fbbf24;
+            box-shadow: 0 5px 16px rgba(217, 119, 6, 0.12);
+        }
+
         /* 服务卡片顶部图片：固定高度并占满卡片，避免手机端变形或不显示 */
         .service-image,
         .service-image-placeholder {
@@ -258,6 +264,10 @@
             line-height: 1.4;
             word-break: break-word;
         }
+
+        .badge.featured { background-color: #fff7ed; color: #c2410c; }
+        .badge.verified { background-color: #ecfdf5; color: #047857; }
+        .badge.muted { background-color: #f3f4f6; color: #4b5563; }
 
         .service-description {
             min-height: 42px;
@@ -555,6 +565,9 @@
             services.forEach(function (service) {
                 const card = document.createElement("article");
                 card.className = "service-card";
+                if (Number(service.isFeatured) === 1) {
+                    card.classList.add("featured");
+                }
 
                 // 卡片顶部显示服务图片；没有图片时使用统一占位区域
                 const imageArea = createServiceImage(service);
@@ -574,18 +587,43 @@
                 const typeList = document.createElement("div");
                 typeList.className = "badge-list";
 
+                if (service.promotionLabel) {
+                    const promotion = document.createElement("span");
+                    promotion.className = "badge featured";
+                    promotion.textContent = service.promotionLabel;
+                    typeList.appendChild(promotion);
+                } else if (Number(service.isFeatured) === 1) {
+                    const featured = document.createElement("span");
+                    featured.className = "badge featured";
+                    featured.textContent = "推荐服务";
+                    typeList.appendChild(featured);
+                }
+
+                if (Number(service.isVerified) === 1) {
+                    const verified = document.createElement("span");
+                    verified.className = "badge verified";
+                    verified.textContent = "认证商家";
+                    typeList.appendChild(verified);
+                }
+
                 const type = document.createElement("span");
                 type.className = "badge";
-                type.textContent = "服务类型：" + (service.type || "未填写");
+                type.textContent = service.serviceCategory || service.type || "未分类";
                 typeList.appendChild(type);
+
+                const merchantType = document.createElement("span");
+                merchantType.className = "badge muted";
+                merchantType.textContent = service.merchantType || "服务主体未填写";
+                typeList.appendChild(merchantType);
 
                 const description = document.createElement("p");
                 description.className = "service-description";
                 description.textContent = service.description || "暂无说明";
 
-                const contactWechat = document.createElement("p");
-                contactWechat.className = "service-info";
-                contactWechat.textContent = "联系微信：" + (service.contactWechat || "未填写");
+                const contactMode = document.createElement("p");
+                contactMode.className = "service-info";
+                contactMode.textContent = "联系："
+                    + formatContactMode(service.contactMode);
 
                 const button = document.createElement("button");
                 button.className = "detail-button";
@@ -601,7 +639,7 @@
                 cardContent.appendChild(priceInfo);
                 cardContent.appendChild(typeList);
                 cardContent.appendChild(description);
-                cardContent.appendChild(contactWechat);
+                cardContent.appendChild(contactMode);
                 cardContent.appendChild(button);
                 card.appendChild(imageArea);
                 card.appendChild(cardContent);
@@ -632,6 +670,15 @@
             });
 
             return image;
+        }
+
+        function formatContactMode(contactMode) {
+            const modeNames = {
+                DIRECT: "直接联系商家",
+                PLATFORM: "平台顾问中转",
+                CODE: "联系商家并发送暗号"
+            };
+            return modeNames[contactMode] || "直接联系商家";
         }
     </script>
 </body>

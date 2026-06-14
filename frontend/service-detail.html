@@ -24,11 +24,14 @@
         .info-value { flex: 1; color: #333; word-break: break-word; }
         /* 服务类型使用和商品分类一致的浅色小标签 */
         .info-value.badge { flex: 0 1 auto; max-width: 100%; box-sizing: border-box; padding: 4px 9px; border-radius: 6px; background-color: #eef2ff; color: #1d4ed8; font-size: 12px; line-height: 1.4; }
+        .info-value.badge.verified { background-color: #ecfdf5; color: #047857; }
+        .info-value.badge.promotion { background-color: #fff7ed; color: #c2410c; }
         .description { white-space: pre-wrap; }
         /* 微信号和复制按钮放在同一行，样式与页面现有按钮保持一致 */
         .wechat-content { flex: 1; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .copy-button { padding: 6px 12px; border: none; border-radius: 6px; background-color: #2563eb; color: #fff; font-size: 14px; cursor: pointer; }
         .copy-button:hover { background-color: #1d4ed8; }
+        .contact-tip { width: 100%; color: #6b7280; font-size: 13px; line-height: 1.5; }
         /* 下架属于危险操作，使用克制的浅红色样式提醒用户 */
         .offline-button { width: 100%; margin-top: 20px; padding: 12px 0; border: 1px solid #fca5a5; border-radius: 6px; background-color: #fef2f2; color: #b91c1c; font-size: 16px; cursor: pointer; }
         .offline-button:hover { background-color: #fee2e2; }
@@ -165,8 +168,28 @@
             detailCard.appendChild(name);
             detailCard.appendChild(priceInfo);
             detailCard.appendChild(createInfoRow("服务类型", service.type || "未填写", "badge"));
+            detailCard.appendChild(createInfoRow("细分类别", service.serviceCategory || "未填写", "badge"));
+            detailCard.appendChild(createInfoRow("服务主体", service.merchantType || "未填写"));
+            detailCard.appendChild(createInfoRow(
+                "商家认证",
+                Number(service.isVerified) === 1 ? "认证商家" : "未认证",
+                Number(service.isVerified) === 1 ? "badge verified" : ""
+            ));
+            if (service.promotionLabel) {
+                detailCard.appendChild(createInfoRow("推广标签", service.promotionLabel, "badge promotion"));
+            }
+            detailCard.appendChild(createInfoRow("联系方式", formatContactMode(service.contactMode)));
+            if (service.contactMode === "CODE") {
+                detailCard.appendChild(createInfoRow("咨询暗号", service.contactCode || "南航小站"));
+            }
             detailCard.appendChild(createInfoRow("服务说明", service.description || "暂无说明", "description"));
-            detailCard.appendChild(createWechatRow("联系微信", service.contactWechat));
+            detailCard.appendChild(createContactRow(service));
+            detailCard.appendChild(createInfoRow(
+                "联系次数",
+                String(service.contactClickCount || 0),
+                "",
+                "contactClickCountValue"
+            ));
             // status 仍由后端用于上下架判断，普通用户的详情页不需要展示
             detailCard.appendChild(createInfoRow("发布时间", formatTime(service.createdTime)));
         }
@@ -193,42 +216,54 @@
             return image;
         }
 
-        // 创建微信信息行，并在微信号旁边添加“复制微信”按钮
-        function createWechatRow(labelText, wechatText) {
+        // 根据联系方式模式决定复制商家微信，还是复制平台商业号
+        function createContactRow(service) {
             const row = document.createElement("div");
             row.className = "info-row";
 
             const label = document.createElement("div");
             label.className = "info-label";
-            label.textContent = labelText + "：";
+            label.textContent = "联系入口：";
 
             const content = document.createElement("div");
             content.className = "wechat-content";
 
+            const mode = service.contactMode || "DIRECT";
+            const contactText = mode === "PLATFORM"
+                ? service.platformContact
+                : service.contactWechat;
             const value = document.createElement("div");
             value.className = "info-value";
-            value.textContent = wechatText || "未填写";
+            value.textContent = contactText || "未填写";
 
             const copyButton = document.createElement("button");
             copyButton.className = "copy-button";
             copyButton.type = "button";
-            copyButton.textContent = "复制微信";
+            copyButton.textContent = mode === "PLATFORM" ? "联系平台顾问" : "复制商家微信";
             copyButton.addEventListener("click", function () {
-                copyWechat(wechatText);
+                copyContact(service, contactText);
             });
 
             content.appendChild(value);
             content.appendChild(copyButton);
+
+            if (mode === "CODE") {
+                const tip = document.createElement("div");
+                tip.className = "contact-tip";
+                tip.textContent = "咨询时请发送暗号：“" + (service.contactCode || "南航小站") + "”";
+                content.appendChild(tip);
+            }
+
             row.appendChild(label);
             row.appendChild(content);
             return row;
         }
 
         // 优先使用浏览器剪贴板 API，不支持时使用临时 textarea 兼容复制
-        async function copyWechat(wechatText) {
-            const text = (wechatText || "").trim();
+        async function copyContact(service, contactText) {
+            const text = (contactText || "").trim();
             if (!text) {
-                alert("暂无微信号可复制");
+                alert("暂无联系方式可复制");
                 return;
             }
 
@@ -238,15 +273,46 @@
                 } else {
                     fallbackCopyText(text);
                 }
-                alert("微信号已复制");
+                await recordContactClick(service.id);
+                showCopySuccess(service);
             } catch (error) {
                 try {
                     fallbackCopyText(text);
-                    alert("微信号已复制");
+                    await recordContactClick(service.id);
+                    showCopySuccess(service);
                 } catch (fallbackError) {
-                    alert("复制失败，请手动复制微信号");
-                    console.error("复制微信号失败：", fallbackError);
+                    alert("复制失败，请手动复制联系方式");
+                    console.error("复制联系方式失败：", fallbackError);
                 }
+            }
+        }
+
+        function showCopySuccess(service) {
+            if (service.contactMode === "PLATFORM") {
+                alert("平台商业号已复制");
+            } else if (service.contactMode === "CODE") {
+                alert("商家微信已复制，咨询时请发送暗号：" + (service.contactCode || "南航小站"));
+            } else {
+                alert("商家微信已复制");
+            }
+        }
+
+        // 复制成功后记录一次联系点击；统计失败不会影响用户复制联系方式
+        async function recordContactClick(id) {
+            try {
+                const response = await fetch(API_BASE_URL + "/service-items/" + id + "/contact-click", {
+                    method: "PUT"
+                });
+                if (!response.ok) {
+                    return;
+                }
+
+                const countValue = document.getElementById("contactClickCountValue");
+                if (countValue) {
+                    countValue.textContent = String(Number(countValue.textContent || 0) + 1);
+                }
+            } catch (error) {
+                console.warn("联系点击次数记录失败：", error);
             }
         }
 
@@ -306,7 +372,7 @@
         }
 
         // 创建一行详情信息
-        function createInfoRow(labelText, valueText, extraClassName) {
+        function createInfoRow(labelText, valueText, extraClassName, valueId) {
             const row = document.createElement("div");
             row.className = "info-row";
 
@@ -316,6 +382,9 @@
 
             const value = document.createElement("div");
             value.className = "info-value";
+            if (valueId) {
+                value.id = valueId;
+            }
             if (extraClassName) {
                 // 允许传入多个类名，方便以后组合不同标签样式
                 value.classList.add(...extraClassName.split(" "));
@@ -325,6 +394,15 @@
             row.appendChild(label);
             row.appendChild(value);
             return row;
+        }
+
+        function formatContactMode(contactMode) {
+            const modeNames = {
+                DIRECT: "直接联系商家",
+                PLATFORM: "平台商业号中转",
+                CODE: "直接联系商家加暗号"
+            };
+            return modeNames[contactMode] || "直接联系商家";
         }
 
         // 简单格式化后端返回的时间
