@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tod.campusmarketbackend.mapper.HelpTaskMapper">
+
+    <resultMap id="HelpTaskResultMap" type="com.tod.campusmarketbackend.entity.HelpTask">
+        <id column="id" property="id"/>
+        <result column="task_type" property="taskType"/>
+        <result column="pickup_location" property="pickupLocation"/>
+        <result column="delivery_location" property="deliveryLocation"/>
+        <result column="detail_location" property="detailLocation"/>
+        <result column="time_slot" property="timeSlot"/>
+        <result column="reward" property="reward"/>
+        <result column="contact" property="contact"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="helper_contact" property="helperContact"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="updated_time" property="updatedTime"/>
+    </resultMap>
+
+    <!-- 查询帮拿任务列表，可按状态和任务类型筛选 -->
+    <select id="findAll" resultMap="HelpTaskResultMap">
+        SELECT *
+        FROM help_task
+        <where>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="taskType != null and taskType != ''">
+                AND task_type = #{taskType}
+            </if>
+        </where>
+        ORDER BY created_time DESC
+    </select>
+
+    <!-- 根据 ID 查询帮拿任务详情 -->
+    <select id="findById" resultMap="HelpTaskResultMap">
+        SELECT *
+        FROM help_task
+        WHERE id = #{id}
+    </select>
+
+    <!-- 插入新帮拿任务 -->
+    <insert id="insert" parameterType="com.tod.campusmarketbackend.entity.HelpTask"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO help_task(
+            task_type, pickup_location, delivery_location, detail_location,
+            time_slot, reward, contact, remark, status, helper_contact,
+            created_time, updated_time
+        )
+        VALUES(
+            #{taskType}, #{pickupLocation}, #{deliveryLocation}, #{detailLocation},
+            #{timeSlot}, #{reward}, #{contact}, #{remark}, #{status}, #{helperContact},
+            #{createdTime}, #{updatedTime}
+        )
+    </insert>
+
+    <!-- 接单：只有待接单任务可以接单 -->
+    <update id="acceptIfWaiting">
+        UPDATE help_task
+        SET status = '已接单',
+            helper_contact = #{helperContact},
+            updated_time = #{updatedTime}
+        WHERE id = #{id}
+          AND status = '待接单'
+    </update>
+
+    <!-- 完成：只有已接单任务可以完成 -->
+    <update id="finishIfAccepted">
+        UPDATE help_task
+        SET status = '已完成',
+            updated_time = #{updatedTime}
+        WHERE id = #{id}
+          AND status = '已接单'
+    </update>
+
+    <!-- 取消：待接单或已接单任务可以取消 -->
+    <update id="cancelIfActive">
+        UPDATE help_task
+        SET status = '已取消',
+            updated_time = #{updatedTime}
+        WHERE id = #{id}
+          AND status IN ('待接单', '已接单')
+    </update>
+
+</mapper>

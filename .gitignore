@@ -54,3 +54,6 @@ build/
 
 ### Uploaded files ###
 uploads/
+
+### Local backend process files ###
+backend-dev.pid
