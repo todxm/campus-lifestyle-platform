@@ -57,3 +57,5 @@ uploads/
 
 ### Local backend process files ###
 backend-dev.pid
+backend-v05-test.pid
+*.pid

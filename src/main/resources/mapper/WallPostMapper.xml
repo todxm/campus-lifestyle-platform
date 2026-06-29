@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tod.campusmarketbackend.mapper.WallPostMapper">
+
+    <resultMap id="WallPostResultMap" type="com.tod.campusmarketbackend.entity.WallPost">
+        <id column="id" property="id"/>
+        <result column="post_type" property="postType"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="location" property="location"/>
+        <result column="contact" property="contact"/>
+        <result column="tag" property="tag"/>
+        <result column="status" property="status"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="updated_time" property="updatedTime"/>
+    </resultMap>
+
+    <!-- 查询校园墙帖子列表；不传 status 时默认不展示已删除帖子 -->
+    <select id="findAll" resultMap="WallPostResultMap">
+        SELECT *
+        FROM wall_post
+        <where>
+            <if test="postType != null and postType != ''">
+                AND post_type = #{postType}
+            </if>
+            <choose>
+                <when test="status != null and status != ''">
+                    AND status = #{status}
+                </when>
+                <otherwise>
+                    AND status != '已删除'
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY created_time DESC
+    </select>
+
+    <!-- 根据 ID 查询帖子详情 -->
+    <select id="findById" resultMap="WallPostResultMap">
+        SELECT *
+        FROM wall_post
+        WHERE id = #{id}
+    </select>
+
+    <!-- 插入新帖子 -->
+    <insert id="insert" parameterType="com.tod.campusmarketbackend.entity.WallPost"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO wall_post(
+            post_type, title, content, location, contact, tag,
+            status, created_time, updated_time
+        )
+        VALUES(
+            #{postType}, #{title}, #{content}, #{location}, #{contact}, #{tag},
+            #{status}, #{createdTime}, #{updatedTime}
+        )
+    </insert>
+
+    <!-- 关闭帖子 -->
+    <update id="closeById">
+        UPDATE wall_post
+        SET status = '已关闭',
+            updated_time = #{updatedTime}
+        WHERE id = #{id}
+          AND status != '已删除'
+    </update>
+
+    <!-- 软删除帖子，不物理删除数据 -->
+    <update id="deleteById">
+        UPDATE wall_post
+        SET status = '已删除',
+            updated_time = #{updatedTime}
+        WHERE id = #{id}
+    </update>
+
+</mapper>
