@@ -55,6 +55,10 @@ build/
 ### Uploaded files ###
 uploads/
 
+### Local Spring profiles ###
+src/main/resources/application-local.yaml
+src/main/resources/application-prod.yaml
+
 ### Local backend process files ###
 backend-dev.pid
 backend-v05-test.pid
