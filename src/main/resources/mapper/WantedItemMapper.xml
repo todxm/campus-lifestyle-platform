@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tod.campusmarketbackend.mapper.WantedItemMapper">
+
+    <resultMap id="WantedItemResultMap" type="com.tod.campusmarketbackend.entity.WantedItem">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="category" property="category"/>
+        <result column="budget_min" property="budgetMin"/>
+        <result column="budget_max" property="budgetMax"/>
+        <result column="description" property="description"/>
+        <result column="contact" property="contact"/>
+        <result column="urgency" property="urgency"/>
+        <result column="status" property="status"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="updated_time" property="updatedTime"/>
+    </resultMap>
+
+    <!-- 查询求购列表；不传 status 时默认不展示已删除求购 -->
+    <select id="findAll" resultMap="WantedItemResultMap">
+        SELECT *
+        FROM wanted_item
+        <where>
+            <if test="category != null and category != ''">
+                AND category = #{category}
+            </if>
+            <choose>
+                <when test="status != null and status != ''">
+                    AND status = #{status}
+                </when>
+                <otherwise>
+                    AND status != '已删除'
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY created_time DESC
+    </select>
+
+    <!-- 根据 ID 查询求购详情 -->
+    <select id="findById" resultMap="WantedItemResultMap">
+        SELECT *
+        FROM wanted_item
+        WHERE id = #{id}
+    </select>
+
+    <!-- 插入新求购 -->
+    <insert id="insert" parameterType="com.tod.campusmarketbackend.entity.WantedItem"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO wanted_item(
+            title, category, budget_min, budget_max, description,
+            contact, urgency, status, created_time, updated_time
+        )
+        VALUES(
+            #{title}, #{category}, #{budgetMin}, #{budgetMax}, #{description},
+            #{contact}, #{urgency}, #{status}, #{createdTime}, #{updatedTime}
+        )
+    </insert>
+
+    <!-- 标记已找到：求购中或已关闭可以改成已找到 -->
+    <update id="markFoundById">
+        UPDATE wanted_item
+        SET status = '已找到',
+            updated_time = #{updatedTime}
+        WHERE id = #{id}
+          AND status IN ('求购中', '已关闭')
+    </update>
+
+    <!-- 关闭求购：只有求购中可以关闭 -->
+    <update id="closeById">
+        UPDATE wanted_item
+        SET status = '已关闭',
+            updated_time = #{updatedTime}
+        WHERE id = #{id}
+          AND status = '求购中'
+    </update>
+
+    <!-- 软删除求购，不物理删除数据 -->
+    <update id="deleteById">
+        UPDATE wanted_item
+        SET status = '已删除',
+            updated_time = #{updatedTime}
+        WHERE id = #{id}
+    </update>
+
+</mapper>
