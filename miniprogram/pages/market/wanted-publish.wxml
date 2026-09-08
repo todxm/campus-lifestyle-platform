@@ -1,0 +1,58 @@
+<view class="page safe-bottom wanted-publish-page">
+  <view class="publish-hero">
+    <view>
+      <view class="page-title">发布求购</view>
+      <view class="page-subtitle">想要什么先挂出来，有闲置的同学才看得到。</view>
+    </view>
+    <view class="publish-hero-icon">📑</view>
+  </view>
+
+  <view class="notice-card soft-card">
+    <view class="notice-title">小站提醒</view>
+    <view class="notice-desc">预算可以写范围，描述越清楚，越容易被同学或平台帮你匹配到。</view>
+  </view>
+
+  <view class="form-card soft-card">
+    <view class="form-item">
+      <view class="label">求购标题</view>
+      <input value="{{title}}" placeholder="例如：求一个床上桌" placeholder-class="placeholder" bindinput="inputTitle" />
+    </view>
+
+    <view class="form-item">
+      <view class="label">分类</view>
+      <picker range="{{categories}}" value="{{categoryIndex}}" bindchange="changeCategory">
+        <view class="picker-value"><text>{{categories[categoryIndex]}}</text><text class="picker-arrow">?</text></view>
+      </picker>
+    </view>
+
+    <view class="form-row">
+      <view class="form-item half">
+        <view class="label">最低预算</view>
+        <input type="digit" value="{{budgetMin}}" placeholder="20" placeholder-class="placeholder" bindinput="inputBudgetMin" />
+      </view>
+      <view class="form-item half">
+        <view class="label">最高预算</view>
+        <input type="digit" value="{{budgetMax}}" placeholder="35" placeholder-class="placeholder" bindinput="inputBudgetMax" />
+      </view>
+    </view>
+
+    <view class="form-item">
+      <view class="label">急需程度</view>
+      <picker range="{{urgencies}}" value="{{urgencyIndex}}" bindchange="changeUrgency">
+        <view class="picker-value"><text>{{urgencies[urgencyIndex]}}</text><text class="picker-arrow">?</text></view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <view class="label">需求说明</view>
+      <textarea value="{{description}}" placeholder="例如：能放电脑就行，别太旧，宿舍自取也可以" placeholder-class="placeholder" bindinput="inputDescription"></textarea>
+    </view>
+
+    <view class="form-item last">
+      <view class="label">联系方式</view>
+      <input value="{{contact}}" placeholder="微信号或手机号" placeholder-class="placeholder" bindinput="inputContact" />
+    </view>
+  </view>
+
+  <view class="submit-btn {{isSubmitting ? 'loading' : ''}}" bindtap="submitWanted">{{isSubmitting ? '正在发布...' : '发布到求购墙'}}</view>
+</view>

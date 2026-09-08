@@ -1,0 +1,117 @@
+<view class="page publish-page safe-bottom">
+  <view class="publish-hero">
+    <view>
+      <view class="page-title">发布帮拿任务</view>
+      <view class="page-subtitle">把取件、送达、时间说清楚，同学才好顺手帮你。</view>
+    </view>
+    <view class="publish-hero-icon">📝</view>
+  </view>
+
+  <view class="time-tip-card soft-card">
+    <view class="tip-title">饭点帮拿只在固定时间段开放</view>
+    <view class="tip-times">
+      <view>中午 11:40-12:25</view>
+      <view>晚上 17:40-18:20</view>
+    </view>
+    <view class="tip-desc">其他时间先不接单，早期由固定互助员处理。</view>
+  </view>
+
+  <view class="form-card soft-card">
+    <view class="form-section-title">任务信息</view>
+
+    <view class="form-item">
+      <view class="label">任务类型</view>
+      <picker range="{{types}}" value="{{typeIndex}}" bindchange="changeType">
+        <view class="picker-value">
+          <text>{{types[typeIndex]}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+      <view class="field-hint">外卖、快递、打印资料都可以先用这个入口。</view>
+    </view>
+
+    <view class="form-item two-column">
+      <view class="field-box">
+        <view class="label">取件地点</view>
+        <picker range="{{pickupPlaces}}" value="{{pickupIndex}}" bindchange="changePickup">
+          <view class="picker-value small">
+            <text>{{pickupPlaces[pickupIndex]}}</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+      <view class="field-box">
+        <view class="label">送达地点</view>
+        <picker range="{{deliveryPlaces}}" value="{{deliveryIndex}}" bindchange="changeDelivery">
+          <view class="picker-value small">
+            <text>{{deliveryPlaces[deliveryIndex]}}</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <view class="label">具体位置</view>
+      <input
+        value="{{detailLocation}}"
+        placeholder="例如：校门口外卖架 → 3栋302"
+        placeholder-class="placeholder"
+        bindinput="inputDetailLocation"
+      />
+      <view class="field-hint">写清楚楼栋、楼下还是门口，减少来回确认。</view>
+    </view>
+
+    <view class="form-section-title second">时间和酬劳</view>
+
+    <view class="form-item">
+      <view class="label">时间段</view>
+      <picker range="{{times}}" value="{{timeIndex}}" bindchange="changeTime">
+        <view class="picker-value">
+          <text>{{times[timeIndex]}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <view class="label">酬劳</view>
+      <view class="reward-stepper">
+        <view class="step-btn" bindtap="minusReward">-</view>
+        <view class="reward-value">{{reward}} 元</view>
+        <view class="step-btn plus" bindtap="plusReward">+</view>
+      </view>
+      <view class="field-hint">默认 2 元，具体金额可以线下再确认。</view>
+    </view>
+
+    <view class="form-section-title second">联系和备注</view>
+
+    <view class="form-item">
+      <view class="label">联系方式</view>
+      <input
+        value="{{contact}}"
+        placeholder="微信号或手机号，方便互助员联系你"
+        placeholder-class="placeholder"
+        bindinput="inputContact"
+      />
+    </view>
+
+    <view class="form-item last">
+      <view class="label">备注</view>
+      <textarea
+        value="{{remark}}"
+        placeholder="例如：放楼下就行；取件码已给；到了喊我"
+        placeholder-class="placeholder"
+        bindinput="inputRemark"
+      ></textarea>
+    </view>
+  </view>
+
+  <view class="submit-btn {{isSubmitting ? 'loading' : ''}}" bindtap="submitTask">
+    {{isSubmitting ? '正在发布...' : '发布任务'}}
+  </view>
+
+  <view class="bottom-tip">
+    小站只提供同学互助信息展示，具体酬劳和物品交接请双方自行确认。
+  </view>
+</view>

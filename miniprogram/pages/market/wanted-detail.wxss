@@ -1,0 +1,127 @@
+.detail-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20rpx;
+  padding: 34rpx 30rpx;
+  border-radius: 36rpx;
+  background: linear-gradient(135deg, #fff1c7 0%, #eaf7dc 100%);
+}
+
+.detail-hero-icon {
+  width: 94rpx;
+  height: 94rpx;
+  border-radius: 30rpx;
+  background: rgba(255, 255, 255, 0.76);
+  font-size: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detail-card,
+.action-card,
+.closed-card,
+.empty-card {
+  margin-top: 24rpx;
+  padding: 28rpx;
+}
+
+.detail-top {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.status-tag {
+  min-height: 42rpx;
+  padding: 0 16rpx;
+  border-radius: 999rpx;
+  background: #e8f7ef;
+  color: #16885a;
+  font-size: 22rpx;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+}
+
+.wanted-title {
+  margin-top: 18rpx;
+  color: #203327;
+  font-size: 38rpx;
+  font-weight: 900;
+}
+
+.budget-line {
+  margin-top: 14rpx;
+  color: #e05d2f;
+  font-size: 32rpx;
+  font-weight: 900;
+}
+
+.wanted-desc {
+  margin-top: 18rpx;
+  color: #4f5d4b;
+  font-size: 27rpx;
+  line-height: 1.7;
+}
+
+.info-list {
+  margin-top: 26rpx;
+  border-top: 1rpx solid #edf0e7;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 22rpx;
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid #edf0e7;
+  color: #74806f;
+  font-size: 25rpx;
+}
+
+.info-row text:last-child {
+  color: #203327;
+  font-weight: 800;
+  text-align: right;
+}
+
+.action-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.action-btn {
+  min-height: 78rpx;
+  border-radius: 999rpx;
+  font-size: 27rpx;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn.primary {
+  background: #1e8a55;
+  color: #fff;
+}
+
+.action-btn.ghost {
+  background: #fff3c4;
+  color: #9a6500;
+}
+
+.action-btn.danger {
+  background: #fff1ee;
+  color: #c64b35;
+}
+
+.closed-card,
+.empty-card {
+  color: #74806f;
+  font-size: 26rpx;
+  line-height: 1.7;
+  text-align: center;
+}

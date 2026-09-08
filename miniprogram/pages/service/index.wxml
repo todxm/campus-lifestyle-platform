@@ -1,0 +1,67 @@
+<view class="page service-page safe-bottom">
+  <view class="service-hero soft-card">
+    <view>
+      <view class="page-title">上海路服务榜</view>
+      <view class="page-subtitle">新生常用 · 校区生活 · 先看这份靠谱清单</view>
+    </view>
+    <view class="hero-badge">榜</view>
+  </view>
+
+  <scroll-view class="category-scroll" scroll-x="true" show-scrollbar="false">
+    <view class="category-row">
+      <view
+        class="category-chip {{activeCategory === item ? 'active' : ''}}"
+        wx:for="{{categories}}"
+        wx:key="*this"
+        data-category="{{item}}"
+        bindtap="changeCategory"
+      >
+        {{item}}
+      </view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{isLoading}}" class="empty-card soft-card">正在加载服务榜...</view>
+
+  <block wx:elif="{{displayServices.length > 0}}">
+    <view
+      class="service-card soft-card {{item.isFeaturedFlag ? 'featured' : ''}}"
+      wx:for="{{displayServices}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="openServiceDetail"
+    >
+      <view class="service-cover-wrap">
+        <image wx:if="{{item.imageUrl}}" class="service-cover" src="{{item.imageUrl}}" mode="aspectFill"></image>
+        <view wx:else class="service-cover-placeholder">服务</view>
+      </view>
+
+      <view class="service-body">
+        <view class="service-topline">
+          <view class="tag tag-blue">{{item.categoryLabel}}</view>
+          <view wx:if="{{item.isFeaturedFlag}}" class="tag tag-warm">推荐</view>
+          <view wx:if="{{item.isVerifiedFlag}}" class="tag tag-green">已核验</view>
+        </view>
+
+        <view class="service-name">{{item.name}}</view>
+        <view class="service-desc">{{item.shortDescription}}</view>
+
+        <view class="service-meta">
+          <text>{{item.priceInfo || '价格可咨询'}}</text>
+          <text>{{item.contactModeText}}</text>
+        </view>
+
+        <view class="service-bottom">
+          <view class="contact-count">已有 {{item.contactCount}} 次同学查看联系方式</view>
+          <view class="detail-btn">查看详情</view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view wx:else class="empty-card soft-card">
+    <view class="empty-icon">☆</view>
+    <view class="empty-title">这个分类还没有服务</view>
+    <view class="empty-desc">可以先看看其他分类，后续小站会继续整理靠谱服务。</view>
+  </view>
+</view>

@@ -1,177 +1,157 @@
-# 南航上海路校园生活小站
+# 南航上海路小站 · 后端与早期网页端
 
-## 项目简介
+面向南昌航空大学上海路校区的校园生活项目，为微信小程序提供饭点帮拿、校园墙、求购墙、商品和服务榜接口。当前业务功能版本为 **V0.7**；Maven 制品版本仍为 `0.0.1-SNAPSHOT`。
 
-南航上海路校园生活小站是一个面向南昌航空大学上海路校区学生的校园生活服务 MVP。
+当前重点是现有功能收尾、本地复现和 GitHub 文档整理，暂不推进正式上线。仓库保留早期原生网页端，不能将网页端、后端接口和小程序的能力视为完全一致。
 
-项目当前聚焦两个最基础、最常见的校园生活场景：二手闲置交易和校园服务入口。学生可以发布闲置物品、浏览商品详情、筛选商品分类，也可以发布跑腿代拿、打印复印、电脑维修等校园服务信息。
+## 项目组成
 
-后续计划继续扩展新生指南、失物招领、校园服务整合等功能，让它逐步成为一个更完整的校园生活服务平台。
-
-## 当前已完成功能
-
-### 二手闲置模块
-
-- 二手商品列表
-- 商品详情
-- 发布商品
-- 下架商品
-- 商品搜索和分类筛选
-- 商品分类下拉选择
-- 搜索框按 Enter 直接搜索
-- 复制卖家微信号
-
-### 校园服务模块
-
-- 校园服务列表
-- 服务详情
-- 发布服务
-- 下架服务
-- 服务搜索和类型筛选
-- 服务类型下拉选择
-- 搜索框按 Enter 直接搜索
-- 复制联系微信号
-
-### 页面体验
-
-- 统一顶部导航栏
-- 发布表单基础校验
-- 移动端适配
-- 原生 HTML、CSS、JavaScript 实现，无 Vue/React
-
-## 技术栈说明
-
-| 类型 | 技术 |
+| 部分 | 位置与用途 |
 | --- | --- |
-| 后端 | Java、Spring Boot |
-| 持久层 | MyBatis |
-| 数据库 | MySQL |
-| 前端 | 原生 HTML、CSS、JavaScript |
-| 构建工具 | Maven |
-| 版本管理 | Git、GitHub |
+| Spring Boot 后端 | 本仓库 `src/`，提供业务接口 |
+| 微信原生小程序 | 本仓库 `miniprogram/`，当前主要客户端 |
+| 早期网页端 | 本仓库 `frontend/`，保留商品和服务等早期页面 |
+| MySQL | 保存 `product`、`service_item`、`help_task`、`wall_post`、`wanted_item` 等业务数据 |
 
-## 项目目录结构
+后端仓库：[todxm/campus-lifestyle-platform](https://github.com/todxm/campus-lifestyle-platform)。
 
-```text
-campus-market-backend
-├── frontend
-│   ├── index.html                 二手商品列表页
-│   ├── detail.html                商品详情页
-│   ├── publish.html               发布商品页
-│   ├── service.html               校园服务列表页
-│   ├── service-detail.html        服务详情页
-│   └── service-publish.html       发布服务页
-├── src
-│   └── main
-│       ├── java
-│       │   └── com/tod/campusmarketbackend
-│       │       ├── controller     接口控制层
-│       │       ├── entity         实体类
-│       │       ├── mapper         MyBatis Mapper 接口
-│       │       └── service        业务逻辑层
-│       └── resources
-│           ├── mapper             MyBatis XML 映射文件
-│           └── application.yaml   Spring Boot 配置文件
-├── pom.xml                        Maven 项目配置
-└── README.md
-```
+## 已有能力
 
-## 本地运行方式
+- V0.4 饭点帮拿：查询、发布、接单、完成、取消。
+- V0.5 校园墙：查询、分类、发布、详情、关闭和逻辑删除接口。
+- V0.6 求购墙：查询、分类、发布、详情、标记已找到、关闭和逻辑删除接口。
+- V0.7 服务榜：服务查询、分类相关字段、详情、联系方式和联系点击统计。
+- 商品与早期服务功能：发布、搜索、详情、下架。
+- 商品/服务图片上传接口；小程序尚未接入上传流程。
 
-### 1. 启动 MySQL
+部分接口没有对应小程序入口。例如小程序“正在出售”为静态示例，不能据此宣称小程序商品交易闭环已经完成。
 
-先启动本地 MySQL 服务，并创建项目使用的数据库。
+## 技术栈
 
-数据库连接配置位于：
+| 技术 | 仓库配置 |
+| --- | --- |
+| Java | 17 |
+| Spring Boot | 4.0.6 |
+| MyBatis Spring Boot Starter | 4.0.1 |
+| 数据库 | MySQL，数据库名默认 `campus_market` |
+| 构建 | Maven Wrapper，无需单独安装 Maven |
+| 早期网页端 | HTML、CSS、JavaScript |
 
 ```text
-src/main/resources/application.yaml
+src/main/java/com/tod/campusmarketbackend/
+  controller/   HTTP 接口与参数处理
+  service/      业务处理
+  mapper/       数据访问接口
+  entity/       业务实体
+  config/       Web 配置
+src/main/resources/
+  mapper/                         MyBatis XML
+  application.yaml                共享配置
+  application-local.example.yaml  本地配置模板
+src/test/                         当前应用启动测试
+frontend/                         早期网页端
+miniprogram/                      微信原生小程序
+*.sql                             分阶段建表、升级与数据脚本
 ```
 
-如果你的 MySQL 用户名、密码或数据库名不同，需要先修改这里的配置。
+## 本地运行（Windows）
 
-### 2. 启动 Spring Boot 后端
+### 1. 获取代码与环境
 
-在项目根目录运行：
+```powershell
+git clone https://github.com/todxm/campus-lifestyle-platform.git campus-market-backend
+cd campus-market-backend
+java -version
+```
 
-```bash
+准备 JDK 17、可连接的 MySQL，以及首次下载 Maven 和依赖所需的网络环境。
+
+### 2. 创建独立开发数据库
+
+完整 V0.7 建表和可选示例数据已放入 [database/](database/README.md)。按照该说明创建新的 `campus_market_demo`，依次执行 `database/schema.sql` 和 `database/demo-data.sql`，再将本地连接配置指向新库。
+
+新脚本包含全部五张业务表，不需要继续运行根目录的历史升级/数据脚本。已有 `campus_market` 业务库保持原样；不要混用含固定库名或删除数据语句的旧脚本。
+
+2026-09-06 已完成独立 MySQL 空库验证、重复导入检查和 48 次接口请求验证，具体范围与限制见 [验证记录](database/README.md#本次验证记录)。
+
+### 3. 设置本地数据库配置
+
+推荐复制仓库内的非敏感模板：
+
+```powershell
+Copy-Item src/main/resources/application-local.example.yaml src/main/resources/application-local.yaml
+```
+
+仅在目标文件不存在时执行，避免覆盖自己的已有配置。编辑本地文件中的连接地址、用户名及密码；`application-local.yaml` 已被 Git 忽略，不应提交。
+
+共享配置默认启用 `local` profile，端口为 `8080`。也支持 `DB_URL`、`DB_USERNAME`、`DB_PASSWORD` 和 `SPRING_PROFILES_ACTIVE` 环境变量。若选择环境变量方式，注意本地 profile 中显式填写的同名配置可能覆盖共享配置的取值；不要混用后误以为环境变量必然生效。不要把真实密码写入 README 或共享配置。
+
+### 4. 启动后端
+
+```powershell
 .\mvnw.cmd spring-boot:run
 ```
 
-后端默认运行地址：
+保留运行终端。关闭进程后接口会不可用；出现 `ERR_CONNECTION_REFUSED` 时先检查进程、端口和请求结果。
 
-```text
-http://localhost:8080
+只读连通性检查：
+
+```powershell
+curl.exe -i http://127.0.0.1:8080/products
+curl.exe -i http://127.0.0.1:8080/service-items
+curl.exe -i http://127.0.0.1:8080/help-tasks
+curl.exe -i http://127.0.0.1:8080/wall-posts
+curl.exe -i http://127.0.0.1:8080/wanted-items
 ```
 
-### 3. 启动前端静态服务器
+确认 HTTP 状态及 JSON 内容；HTTP 200 不代表发布、状态变更等业务流程都已通过。
 
-进入 `frontend` 目录：
+### 5. 打开客户端
 
-```bash
+主要客户端为微信小程序：用微信开发者工具导入 `miniprogram/`，其 `utils/config.js` 默认连接 `http://127.0.0.1:8080`。此地址用于本机模拟器，真机不能直接访问电脑的回环地址。
+
+早期网页端为可选历史演示入口：
+
+```powershell
 cd frontend
-```
-
-启动静态服务器：
-
-```bash
 python -m http.server 8081
 ```
 
-### 4. 访问项目
+打开 `http://localhost:8081/home.html`。运行前需核对网页中的 API 地址是否指向当前本地后端；旧页面可能保留部署地址，不能保证仅启动静态服务器即可完成本地联调。
 
-浏览器打开：
+## 接口索引
 
-```text
-http://localhost:8081/index.html
-```
+以下路径来自当前 Controller 映射。请求体字段应以 `entity/` 和 Controller 校验为准，查询结果与写操作返回体并未统一成同一种包装格式。
 
-## 后端接口说明
-
-### 二手商品接口
-
-| 方法 | 接口 | 说明 |
+| 模块 | 查询 | 写操作 |
 | --- | --- | --- |
-| GET | `/products` | 查询二手商品列表 |
-| GET | `/products/{id}` | 查询商品详情 |
-| POST | `/products` | 发布商品 |
-| GET | `/products/search` | 按关键词和分类搜索商品 |
-| PUT | `/products/{id}/offline` | 下架商品 |
+| 帮拿 | GET `/help-tasks`、`/help-tasks/{id}` | POST `/help-tasks`；PUT `/help-tasks/{id}/accept`、`/finish`、`/cancel` |
+| 校园墙 | GET `/wall-posts`、`/wall-posts/{id}` | POST `/wall-posts`；PUT `/wall-posts/{id}/close`、`/delete` |
+| 求购墙 | GET `/wanted-items`、`/wanted-items/{id}` | POST `/wanted-items`；PUT `/wanted-items/{id}/found`、`/close`、`/delete` |
+| 商品 | GET `/products`、`/products/{id}`、`/products/search` | POST `/products`；PUT `/products/{id}/offline` |
+| 服务榜 | GET `/service-items`、`/service-items/{id}`、`/service-items/search` | POST `/service-items`；PUT `/service-items/{id}/offline`、`/contact-click` |
+| 图片 | 无独立查询接口，上传结果返回地址 | POST `/upload/product-image`、`/upload/service-image`，multipart 字段 `file` |
 
-搜索示例：
+表中同一单元格的操作后缀沿用该行完整资源前缀，例如 `/finish` 指 `/help-tasks/{id}/finish`。
 
-```text
-GET /products/search?keyword=教材&category=教材资料
+帮拿列表支持 `status`、`taskType` 查询参数。接单请求体字段为 `helperContact`。发布和状态变更会修改数据，应使用独立测试记录。
+
+## 测试与已知限制
+
+```powershell
+.\mvnw.cmd clean package
 ```
 
-### 校园服务接口
+上述命令已于 2026-09-06 在独立验证数据库配置下执行，结果为 BUILD SUCCESS。仓库目前的 Java 测试仅为 `contextLoads`，不代表业务回归覆盖。历史人工/API 检查记录与可重复执行的自动化测试应分别描述。
 
-| 方法 | 接口 | 说明 |
-| --- | --- | --- |
-| GET | `/service-items` | 查询校园服务列表 |
-| GET | `/service-items/{id}` | 查询服务详情 |
-| POST | `/service-items` | 发布服务 |
-| GET | `/service-items/search` | 按关键词和类型搜索服务 |
-| PUT | `/service-items/{id}/offline` | 下架服务 |
+- 小程序已完成关键流程自动回归和一轮开发者工具体验检查；真机、多基础库兼容性与完整录屏仍待确认。
+- 尚无完整用户认证和权限体系，本地联系方式不是可信身份依据。
+- 服务榜使用示例数据，不代表真实商家运营。
+- 空库初始化已验证；真实页面截图和 V0.7 完整人工验收记录仍待补齐。
+- 历史 Git 曾包含数据库凭据；当前配置改为本地文件或环境变量，不能证明历史凭据已轮换失效。公开整理前需单独核实，文档不包含真实密码。
 
-搜索示例：
+## 历史资料与当前收尾方向
 
-```text
-GET /service-items/search?keyword=打印&type=打印复印
-```
+[TESTING.md](TESTING.md) 为早期 V0.1 网页端测试资料；[DEPLOYMENT.md](DEPLOYMENT.md) 为历史服务器部署记录，其中公网地址和运行结论未经本轮验证，不作为当前在线演示承诺。它们尚待与 V0.7 文档统一。
 
-## 后续计划
-
-- 图片上传
-- 用户登录
-- 管理员审核
-- 新生指南模块
-- 失物招领模块
-- 校园服务信息整合
-- 小程序版本
-
-## 项目状态
-
-当前项目是 MVP 版本，主要用于完成校园生活服务平台的基础功能验证，以及 Spring Boot、MyBatis、MySQL 和原生前端的前后端联调练习。
-
-项目适合用于课程展示、个人学习总结、简历项目说明，也可以作为后续继续扩展校园应用的基础版本。
+当前顺序：完成现有功能的页面验收，整理真实截图与仓库互链。数据库复现流程已补齐。正式部署、商家运营和大型新功能不属于当前收尾目标。

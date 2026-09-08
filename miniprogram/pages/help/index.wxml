@@ -1,0 +1,157 @@
+<view class="page help-page safe-bottom">
+  <view class="help-hero">
+    <view class="hero-copy">
+      <view class="page-title">饭点帮拿</view>
+      <view class="page-subtitle">下课顺手带一趟，饭点不用来回跑</view>
+    </view>
+    <view class="hero-illustration">
+      <view class="hero-route"></view>
+      <view class="hero-dot gate"></view>
+      <view class="hero-dot dorm"></view>
+      <view class="hero-bag">🥡</view>
+    </view>
+  </view>
+
+  <view class="time-card soft-card">
+    <view class="time-head">
+      <view>
+        <view class="time-title">今日帮拿时间</view>
+        <view class="time-subtitle">固定饭点开放，先把高峰期跑顺</view>
+      </view>
+      <view class="open-badge">今日开放</view>
+    </view>
+
+    <view class="time-list">
+      <view class="time-item lunch">
+        <view class="time-name">中午</view>
+        <view class="time-value">11:40-12:25</view>
+      </view>
+      <view class="time-item dinner">
+        <view class="time-name">晚上</view>
+        <view class="time-value">17:40-18:20</view>
+      </view>
+      <view class="time-item rest">
+        <view class="time-name">其他时间</view>
+        <view class="time-value">暂不接单</view>
+      </view>
+    </view>
+
+    <view class="status-tags">
+      <view class="status-tag warm">今日开放</view>
+      <view class="status-tag green">固定饭点</view>
+      <view class="status-tag blue">固定互助员</view>
+    </view>
+    <view class="time-note">前期由固定互助员接单，酬劳线下确认，小站暂不托管费用。</view>
+  </view>
+
+  <view class="quick-actions">
+    <view class="quick-action publish" bindtap="goPublish">
+      <view>
+        <view class="quick-title">我要帮拿</view>
+        <view class="quick-desc">发布一个帮拿任务</view>
+      </view>
+      <view class="quick-icon">＋</view>
+    </view>
+    <view class="quick-action take" bindtap="showHelperTip">
+      <view>
+        <view class="quick-title">我来接单</view>
+        <view class="quick-desc">看看有没有顺路任务</view>
+      </view>
+      <view class="quick-icon">↗</view>
+    </view>
+  </view>
+
+  <view class="my-help-entry" bindtap="goMine">
+    <view>
+      <view class="my-help-title">我的帮拿</view>
+      <view class="my-help-desc">查看我发布的任务和我接过的任务</view>
+    </view>
+    <view class="my-help-arrow">›</view>
+  </view>
+
+  <view class="section-row">
+    <view class="section-title">帮拿任务</view>
+    <view class="section-note">饭点高峰优先展示</view>
+  </view>
+
+  <scroll-view class="filter-scroll" scroll-x="true" show-scrollbar="false">
+    <view class="filter-row">
+      <view
+        class="filter-chip {{activeFilter === item ? 'active' : ''}}"
+        wx:for="{{filters}}"
+        wx:key="*this"
+        data-filter="{{item}}"
+        bindtap="changeFilter"
+      >
+        {{item}}
+      </view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{isLoading}}" class="loading-card soft-card">
+    正在加载帮拿任务...
+  </view>
+
+  <view class="task-list">
+    <view
+      class="task-card {{item.status === '待接单' ? 'waiting' : 'muted'}}"
+      wx:for="{{filteredTasks}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="openTaskDetail"
+    >
+      <view class="task-top">
+        <view class="task-type">{{item.type}}</view>
+        <view class="task-status {{item.statusClass}}">{{item.status}}</view>
+      </view>
+
+      <view class="route-row">
+        <view class="route-point from">取</view>
+        <view class="route-main">
+          <view class="route-text">{{item.route}}</view>
+          <view wx:if="{{item.detailLocation}}" class="route-detail">{{item.detailLocation}}</view>
+          <view class="route-line"></view>
+        </view>
+        <view class="route-point to">达</view>
+      </view>
+
+      <view class="task-meta">
+        <view class="reward">{{item.reward}}</view>
+        <view class="deadline">{{item.deadline}}</view>
+      </view>
+
+      <view class="task-remark">{{item.remark}}</view>
+
+      <view class="task-bottom">
+        <view class="label-row">
+          <view
+            class="mini-label {{labelIndex === 0 ? 'highlight' : ''}}"
+            wx:for="{{item.labels}}"
+            wx:for-index="labelIndex"
+            wx:key="*this"
+          >
+            {{item}}
+          </view>
+        </view>
+        <view
+          class="task-action {{item.status === '待接单' ? '' : 'disabled'}}"
+          data-id="{{item.id}}"
+          data-status="{{item.status}}"
+          catchtap="helpTask"
+        >
+          {{item.actionText}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{!isLoading && filteredTasks.length === 0}}" class="empty-card soft-card">
+    <view class="empty-title">暂时还没有帮拿任务</view>
+    <view class="empty-desc">来发第一单吧，饭点互助从这里开始。</view>
+    <view class="empty-btn" bindtap="goPublish">发布帮拿任务</view>
+  </view>
+
+  <view class="bottom-tip">
+    小站只提供同学互助信息展示，具体酬劳和物品交接请双方自行确认。
+  </view>
+</view>

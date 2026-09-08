@@ -1,0 +1,133 @@
+page {
+  min-height: 100vh;
+  background: #fff8ea;
+  color: #203327;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 34rpx 28rpx 52rpx;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255, 225, 150, 0.42) 0, rgba(255, 225, 150, 0) 260rpx),
+    radial-gradient(circle at 92% 6%, rgba(177, 225, 196, 0.42) 0, rgba(177, 225, 196, 0) 300rpx),
+    #fff8ea;
+}
+
+.page-title {
+  margin: 0 0 10rpx;
+  font-size: 48rpx;
+  font-weight: 900;
+  color: #183423;
+  line-height: 1.18;
+  letter-spacing: 0;
+}
+
+.page-subtitle {
+  margin-bottom: 30rpx;
+  color: #6b735e;
+  font-size: 27rpx;
+  line-height: 1.58;
+}
+
+.section-title {
+  margin: 38rpx 0 18rpx;
+  font-size: 34rpx;
+  font-weight: 900;
+  color: #203327;
+}
+
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 38rpx 0 18rpx;
+}
+
+.section-title-row .section-title {
+  margin: 0;
+}
+
+.section-note {
+  color: #8b947d;
+  font-size: 23rpx;
+}
+
+.soft-card {
+  box-sizing: border-box;
+  border-radius: 40rpx;
+  background: rgba(255, 253, 247, 0.96);
+  box-shadow: 0 14rpx 38rpx rgba(70, 94, 60, 0.08);
+}
+
+.primary-btn,
+.ghost-btn,
+.warm-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 76rpx;
+  box-sizing: border-box;
+  padding: 0 30rpx;
+  border-radius: 999rpx;
+  font-size: 27rpx;
+  font-weight: 900;
+}
+
+.primary-btn {
+  background: #16885a;
+  color: #ffffff;
+  box-shadow: 0 12rpx 24rpx rgba(22, 136, 90, 0.18);
+}
+
+.ghost-btn {
+  background: #e7f7ee;
+  color: #16885a;
+}
+
+.warm-btn {
+  background: #ffe7ac;
+  color: #8a5200;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 46rpx;
+  box-sizing: border-box;
+  padding: 0 18rpx;
+  border-radius: 999rpx;
+  background: #e7f7ee;
+  color: #16885a;
+  font-size: 23rpx;
+  font-weight: 900;
+}
+
+.tag-warm {
+  background: #fff0c8;
+  color: #a15c00;
+}
+
+.tag-blue {
+  background: #eaf4ff;
+  color: #2f6db0;
+}
+
+.tag-orange {
+  background: #ffeadd;
+  color: #c75b26;
+}
+
+.tag-purple {
+  background: #f0eaff;
+  color: #7653bc;
+}
+
+.muted {
+  color: #7b846f;
+}
+
+.safe-bottom {
+  padding-bottom: calc(54rpx + env(safe-area-inset-bottom));
+}

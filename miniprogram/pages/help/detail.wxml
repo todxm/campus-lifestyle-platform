@@ -1,0 +1,76 @@
+<view class="page detail-page safe-bottom">
+  <view class="detail-hero">
+    <view>
+      <view class="page-title">帮拿详情</view>
+      <view class="page-subtitle">看清路线、时间和联系方式，再决定要不要接这一单。</view>
+    </view>
+    <view class="detail-hero-icon">🥡</view>
+  </view>
+
+  <view wx:if="{{isLoading}}" class="loading-card soft-card">
+    正在加载任务详情...
+  </view>
+
+  <block wx:if="{{task}}">
+    <view class="status-card soft-card">
+      <view class="status-main">
+        <view class="task-type">{{task.taskType}}</view>
+        <view class="task-status {{task.statusClass}}">{{task.status}}</view>
+      </view>
+      <view class="route-title">{{task.pickupLocation}} → {{task.deliveryLocation}}</view>
+      <view class="route-subtitle">{{task.detailLocation}}</view>
+      <view class="reward-row">
+        <view class="reward">{{task.reward}}</view>
+        <view class="time-slot">{{task.timeSlot}}饭点</view>
+      </view>
+    </view>
+
+    <view class="info-card soft-card">
+      <view class="card-title">任务信息</view>
+      <view class="info-row">
+        <view class="info-label">取件地点</view>
+        <view class="info-value">{{task.pickupLocation}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">送达地点</view>
+        <view class="info-value">{{task.deliveryLocation}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">具体位置</view>
+        <view class="info-value">{{task.detailLocation}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">发布时间</view>
+        <view class="info-value">{{task.createdTime}}</view>
+      </view>
+    </view>
+
+    <view class="info-card soft-card">
+      <view class="card-title">联系和备注</view>
+      <view class="info-row">
+        <view class="info-label">发布人联系</view>
+        <view class="info-value">{{task.contact}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">接单人联系</view>
+        <view class="info-value">{{task.helperContact}}</view>
+      </view>
+      <view class="remark-box">{{task.remark}}</view>
+    </view>
+
+    <view wx:if="{{task.canAccept || task.canFinish || task.canCancel}}" class="action-card soft-card">
+      <view class="card-title">任务操作</view>
+      <view class="action-buttons">
+        <view wx:if="{{task.canAccept}}" class="primary-action" bindtap="acceptTask">我来帮</view>
+        <view wx:if="{{task.canFinish}}" class="primary-action" bindtap="finishTask">完成任务</view>
+        <view wx:if="{{task.canCancel}}" class="danger-action" bindtap="cancelTask">取消任务</view>
+      </view>
+      <view class="action-note">当前还没有登录系统，操作权限后续会接微信身份再细分。</view>
+    </view>
+
+    <view wx:if="{{task.isClosed}}" class="closed-card soft-card">
+      <view class="closed-title">这个任务已结束</view>
+      <view class="closed-desc">已完成或已取消的任务不能继续操作，可以返回帮拿列表看看新的饭点任务。</view>
+    </view>
+  </block>
+</view>

@@ -1,0 +1,57 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/help/index",
+    "pages/wall/index",
+    "pages/wall/detail",
+    "pages/wall/publish",
+    "pages/market/index",
+    "pages/market/wanted-detail",
+    "pages/market/wanted-mine",
+    "pages/market/wanted-publish",
+    "pages/service/index",
+    "pages/service/detail",
+    "pages/mine/index",
+    "pages/help/detail",
+    "pages/help/mine",
+    "pages/help/publish"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "南航上海路小站",
+    "navigationBarBackgroundColor": "#FFF7E8",
+    "backgroundColor": "#FFF7E8"
+  },
+  "tabBar": {
+    "color": "#7F817A",
+    "selectedColor": "#F2BE2F",
+    "backgroundColor": "#FFFDF5",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/help/index",
+        "text": "帮拿"
+      },
+      {
+        "pagePath": "pages/wall/index",
+        "text": "校园墙"
+      },
+      {
+        "pagePath": "pages/market/index",
+        "text": "集市"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "componentFramework": "glass-easel",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

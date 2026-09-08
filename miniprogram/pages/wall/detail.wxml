@@ -1,0 +1,43 @@
+<view class="page wall-detail-page safe-bottom">
+  <view class="detail-hero">
+    <view>
+      <view class="page-title">校园墙详情</view>
+      <view class="page-subtitle">失物招领、新生问题和校园动态，都在这里说清楚。</view>
+    </view>
+    <view class="detail-hero-icon">📌</view>
+  </view>
+
+  <view class="loading-card soft-card" wx:if="{{isLoading}}">正在加载详情...</view>
+
+  <view wx:if="{{!isLoading && post}}">
+    <view class="main-card soft-card {{post.typeClass}}">
+      <view class="post-top">
+        <view class="tag {{post.typeClass}}">{{post.postType}}</view>
+        <view class="status {{post.isClosed ? 'closed' : ''}}">{{post.status}}</view>
+      </view>
+      <view class="post-title">{{post.title}}</view>
+      <view class="post-content">{{post.content}}</view>
+      <view class="post-tag">{{post.tag}}</view>
+    </view>
+
+    <view class="closed-card soft-card" wx:if="{{post.isClosed}}">
+      <view class="closed-title">这条信息已关闭</view>
+      <view class="closed-desc">可能已经找回、已解决，或发布人不再需要继续展示。</view>
+    </view>
+
+    <view class="info-card soft-card">
+      <view class="info-row">
+        <view class="info-label">地点</view>
+        <view class="info-value">{{post.location}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">联系方式</view>
+        <view class="info-value">{{post.contact}}</view>
+      </view>
+      <view class="info-row">
+        <view class="info-label">发布时间</view>
+        <view class="info-value">{{post.createdTime}}</view>
+      </view>
+    </view>
+  </view>
+</view>

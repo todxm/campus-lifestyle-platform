@@ -1,0 +1,80 @@
+<view class="page wall-publish-page safe-bottom">
+  <view class="publish-hero">
+    <view>
+      <view class="page-title">发布校园墙</view>
+      <view class="page-subtitle">先做失物招领、新生提问和校园动态，内容尽量说清楚。</view>
+    </view>
+    <view class="publish-hero-icon">📝</view>
+  </view>
+
+  <view class="notice-card soft-card">
+    <view class="notice-title">小站提醒</view>
+    <view class="notice-desc">请不要发布隐私、攻击性或无法确认的信息，尽量把时间、地点和事情经过写清楚。</view>
+  </view>
+
+  <view class="form-card soft-card">
+    <view class="form-item">
+      <view class="label">帖子类型</view>
+      <picker range="{{postTypes}}" value="{{typeIndex}}" bindchange="changeType">
+        <view class="picker-value">
+          <text>{{postTypes[typeIndex]}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <view class="label">标题</view>
+      <input
+        value="{{title}}"
+        placeholder="例如：食堂附近捡到校园卡"
+        placeholder-class="placeholder"
+        bindinput="inputTitle"
+      />
+    </view>
+
+    <view class="form-item">
+      <view class="label">内容</view>
+      <textarea
+        value="{{content}}"
+        placeholder="把时间、地点、事情经过说清楚，方便同学判断。"
+        placeholder-class="placeholder"
+        bindinput="inputContent"
+      ></textarea>
+    </view>
+
+    <view class="form-item">
+      <view class="label">地点</view>
+      <input
+        value="{{location}}"
+        placeholder="例如：食堂门口、教学楼 B 区"
+        placeholder-class="placeholder"
+        bindinput="inputLocation"
+      />
+    </view>
+
+    <view class="form-item">
+      <view class="label">联系方式</view>
+      <input
+        value="{{contact}}"
+        placeholder="可选，失物招领建议填写微信号/手机号"
+        placeholder-class="placeholder"
+        bindinput="inputContact"
+      />
+    </view>
+
+    <view class="form-item last">
+      <view class="label">标签</view>
+      <input
+        value="{{tag}}"
+        placeholder="例如：急寻 / 待认领 / 新生求助 / 校园提醒"
+        placeholder-class="placeholder"
+        bindinput="inputTag"
+      />
+    </view>
+  </view>
+
+  <view class="submit-btn {{isSubmitting ? 'loading' : ''}}" bindtap="submitPost">
+    {{isSubmitting ? '正在发布...' : '发布到校园墙'}}
+  </view>
+</view>

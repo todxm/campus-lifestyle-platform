@@ -1,0 +1,52 @@
+<view class="page service-detail-page safe-bottom">
+  <view class="detail-hero soft-card">
+    <view>
+      <view class="page-title">服务详情</view>
+      <view class="page-subtitle">先看清楚介绍，再决定要不要联系。</view>
+    </view>
+    <view class="detail-hero-icon">☆</view>
+  </view>
+
+  <view wx:if="{{isLoading}}" class="empty-card soft-card">正在加载服务详情...</view>
+
+  <block wx:elif="{{service}}">
+    <view class="detail-card soft-card">
+      <image wx:if="{{service.imageUrl}}" class="detail-cover" src="{{service.imageUrl}}" mode="aspectFill"></image>
+      <view wx:else class="detail-cover-placeholder">校园服务</view>
+
+      <view class="detail-body">
+        <view class="detail-tags">
+          <view class="tag tag-blue">{{service.categoryLabel}}</view>
+          <view wx:if="{{service.isFeaturedFlag}}" class="tag tag-warm">推荐</view>
+          <view wx:if="{{service.isVerifiedFlag}}" class="tag tag-green">已核验</view>
+        </view>
+
+        <view class="service-name">{{service.name}}</view>
+        <view class="service-desc">{{service.description || '暂时没有填写详细介绍。'}}</view>
+
+        <view class="info-list">
+          <view class="info-row"><text>价格说明</text><text>{{service.priceInfo || '可咨询'}}</text></view>
+          <view class="info-row"><text>服务主体</text><text>{{service.merchantType || '暂未填写'}}</text></view>
+          <view class="info-row"><text>联系方式模式</text><text>{{service.contactModeText}}</text></view>
+          <view wx:if="{{service.promotionLabel}}" class="info-row"><text>服务标签</text><text>{{service.promotionLabel}}</text></view>
+          <view wx:if="{{service.contactCode}}" class="info-row"><text>咨询暗号</text><text>{{service.contactCode}}</text></view>
+          <view class="info-row"><text>查看次数</text><text>{{service.contactCount}} 次</text></view>
+          <view class="info-row"><text>发布时间</text><text>{{service.createdTime || '暂未记录'}}</text></view>
+        </view>
+      </view>
+    </view>
+
+    <view class="contact-card soft-card">
+      <view class="contact-title">联系方式</view>
+      <view wx:if="{{contactVisible && contactText}}" class="contact-value">{{contactText}}</view>
+      <view wx:elif="{{contactVisible}}" class="contact-value muted">暂未公开联系方式，可联系小站了解。</view>
+      <view wx:else class="contact-desc">点击后会记录一次查看，方便小站判断哪些服务更常用。</view>
+      <view class="primary-btn contact-btn" bindtap="showContact">{{contactButtonText}}</view>
+    </view>
+  </block>
+
+  <view wx:else class="empty-card soft-card">
+    <view class="empty-title">服务不存在</view>
+    <view class="empty-desc">可能已经下架，先返回服务榜看看其他服务。</view>
+  </view>
+</view>

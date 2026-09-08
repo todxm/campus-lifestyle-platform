@@ -1,0 +1,87 @@
+<view class="page safe-bottom">
+  <view class="page-title">集市</view>
+  <view class="page-subtitle">二手捡漏和求购都放这，先让同学之间流动起来。</view>
+
+  <view class="tab-card soft-card">
+    <view
+      class="tab-item {{activeTab === item ? 'active' : ''}}"
+      wx:for="{{tabs}}"
+      wx:key="*this"
+      data-tab="{{item}}"
+      bindtap="changeTab"
+    >
+      {{item}}
+    </view>
+  </view>
+
+  <scroll-view class="category-scroll" scroll-x="true" show-scrollbar="false">
+    <view class="category-row">
+      <view
+        class="category-chip {{activeCategory === item ? 'active' : ''}}"
+        wx:for="{{categories}}"
+        wx:key="*this"
+        data-category="{{item}}"
+        bindtap="changeCategory"
+      >
+        {{item}}
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="goods-list" wx:if="{{activeTab === '正在出售'}}">
+    <view class="goods-card soft-card" wx:for="{{saleItems}}" wx:key="name">
+      <view class="goods-info">
+        <view class="goods-name">{{item.name}}</view>
+        <view class="goods-note">{{item.note}}</view>
+        <view class="tag">{{item.category}}</view>
+      </view>
+      <view class="goods-price">{{item.price}}</view>
+    </view>
+  </view>
+
+  <block wx:else>
+    <view class="wanted-head">
+      <view>
+        <view class="wanted-title">上海路蹲一个</view>
+        <view class="wanted-subtitle">想要床上桌、台灯、教材，先挂出来。</view>
+      </view>
+      <view class="publish-wanted-btn" bindtap="publishWanted">发布求购</view>
+    </view>
+
+    <view class="goods-list">
+      <view wx:if="{{isLoadingWanted}}" class="empty-card soft-card">正在加载求购墙...</view>
+
+      <block wx:elif="{{wantedItems.length > 0}}">
+        <view
+          class="wanted-card soft-card"
+          wx:for="{{wantedItems}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="openWantedDetail"
+        >
+          <view class="goods-info">
+            <view class="wanted-card-top">
+              <view class="tag tag-warm">{{item.category}}</view>
+              <view class="status-tag">{{item.status}}</view>
+            </view>
+            <view class="goods-name">{{item.title}}</view>
+            <view class="goods-note">{{item.description}}</view>
+            <view class="wanted-meta">
+              <text>预算 {{item.budgetText}}</text>
+              <text>{{item.urgency}}</text>
+            </view>
+            <view class="wanted-time">{{item.createdTime}}</view>
+          </view>
+          <view class="wanted-label">我想要</view>
+        </view>
+      </block>
+
+      <view wx:else class="empty-card soft-card">
+        <view class="empty-icon">📑</view>
+        <view class="empty-title">还没有同学求购</view>
+        <view class="empty-desc">可以先发一条需求，让有闲置的同学看到。</view>
+        <view class="empty-btn" bindtap="publishWanted">发布求购</view>
+      </view>
+    </view>
+  </block>
+</view>

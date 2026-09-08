@@ -1,0 +1,154 @@
+<view class="index-page safe-bottom">
+  <view class="hero-cover">
+    <view class="hero-copy">
+      <view class="hero-title">南航上海路小站</view>
+      <view class="hero-subtitle">上海路校区 · 校园情报站</view>
+      <view class="hero-chip">今天也在收集上海路的新鲜事</view>
+    </view>
+
+    <view class="campus-scene">
+      <!-- 后续把 home-campus.png 放到 images 目录后，这里会显示更完整的校园插画 -->
+      <image class="campus-image" src="/images/home-campus.png" mode="aspectFit"></image>
+      <view class="campus-fallback">
+        <view class="sun-spark spark-one"></view>
+        <view class="sun-spark spark-two"></view>
+        <view class="scene-cloud cloud-one"></view>
+        <view class="scene-cloud cloud-two"></view>
+        <view class="route-dash"></view>
+        <view class="scene-plane">➤</view>
+        <view class="tree big-tree">
+          <view class="tree-leaf"></view>
+          <view class="tree-stem"></view>
+        </view>
+        <view class="tree small-tree">
+          <view class="tree-leaf"></view>
+          <view class="tree-stem"></view>
+        </view>
+        <view class="gate-wrap">
+          <view class="gate-tower left"></view>
+          <view class="gate-board">南航上海路</view>
+          <view class="gate-tower right"></view>
+          <view class="gate-base"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="question-card">
+    <view class="question-left">
+      <view class="question-title">今天在上海路，看点什么？</view>
+      <view class="yellow-stroke"></view>
+    </view>
+    <view class="question-art">
+      <view class="note-board">
+        <text>蹲</text>
+        <text>好物</text>
+      </view>
+      <view class="tiny-plane">✈</view>
+      <view class="food-bag">🍱</view>
+    </view>
+
+    <view class="quick-tags">
+      <view
+        class="quick-tag {{item.color}}"
+        wx:for="{{quickTags}}"
+        wx:key="text"
+      >
+        <text class="quick-icon">{{item.icon}}</text>
+        <text>{{item.text}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="meal-event-card">
+    <view class="meal-copy">
+      <view class="meal-tags">
+        <view class="meal-tag">今日开放</view>
+        <view class="meal-tag green">固定饭点</view>
+        <view class="meal-tag blue">顺手互助</view>
+      </view>
+      <view class="meal-title">饭点帮拿开放中</view>
+      <view class="meal-desc">下课顺手带一趟，饭点不用来回跑</view>
+      <view class="meal-times">
+        <view>中午 11:40-12:25</view>
+        <view>晚上 17:40-18:20</view>
+      </view>
+      <view class="meal-actions">
+        <view class="meal-btn primary" bindtap="goHelpPublish">我要帮拿</view>
+        <view class="meal-btn ghost" bindtap="goHelp">我来接单</view>
+      </view>
+    </view>
+    <view class="meal-route-art">
+      <!-- 后续把 help-delivery.png 放到 images 目录后，会覆盖这里的简易占位路线 -->
+      <image class="meal-image" src="/images/help-delivery.png" mode="aspectFit"></image>
+      <view class="meal-fallback">
+        <view class="route-dot from"></view>
+        <view class="route-line"></view>
+        <view class="route-dot to"></view>
+        <view class="route-text from-text">校门口</view>
+        <view class="route-text to-text">宿舍</view>
+        <view class="delivery-bag">🥡</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="intel-card">
+    <view
+      class="intel-block {{index === 0 ? 'first' : ''}}"
+      wx:for="{{intelCards}}"
+      wx:key="title"
+    >
+      <view class="intel-icon">{{item.icon}}</view>
+      <view class="intel-title">{{item.title}}</view>
+      <view class="intel-desc">{{item.desc}}</view>
+    </view>
+  </view>
+
+  <view class="feature-grid">
+    <view
+      class="feature-card {{item.color}}"
+      wx:for="{{entries}}"
+      wx:key="title"
+      data-action="{{item.action}}"
+      bindtap="handleEntryTap"
+    >
+      <view class="feature-copy">
+        <view class="feature-title">{{item.title}}</view>
+        <view class="feature-desc">{{item.desc}}</view>
+        <view class="feature-btn">{{item.button}} ›</view>
+      </view>
+      <view class="feature-illustration">
+        <view class="feature-shape"></view>
+        <!-- 部分功能卡预留 PNG 插画位；图片未放入时，仍显示原来的 emoji 占位 -->
+        <image wx:if="{{item.color === 'wish'}}" class="feature-image" src="/images/wanted-board.png" mode="aspectFit"></image>
+        <image wx:elif="{{item.color === 'service'}}" class="feature-image" src="/images/service-shield.png" mode="aspectFit"></image>
+        <view class="feature-icon">{{item.icon}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="hot-head">
+    <view class="hot-title">🔥 本周热门</view>
+    <view class="hot-more">更多热门 ›</view>
+  </view>
+  <scroll-view class="hot-scroll" scroll-x="true" show-scrollbar="false">
+    <view class="hot-row">
+      <view
+        class="hot-card {{item.color}}"
+        wx:for="{{hotItems}}"
+        wx:key="title"
+        bindtap="tapHotItem"
+      >
+        <view class="hot-pic">
+          <view class="hot-pic-mark"></view>
+          <view class="hot-pic-glow"></view>
+        </view>
+        <view class="hot-name">{{item.title}}</view>
+        <view class="hot-bottom">
+          <text>{{item.price}}</text>
+          <text class="hot-tag">{{item.tag}}</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

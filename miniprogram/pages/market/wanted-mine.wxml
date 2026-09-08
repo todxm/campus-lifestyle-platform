@@ -1,0 +1,32 @@
+<view class="page safe-bottom wanted-mine-page">
+  <view class="page-title">我的求购</view>
+  <view class="page-subtitle">先用本地联系方式临时识别，后续接微信登录后会更稳。</view>
+
+  <view wx:if="{{!userContact}}" class="contact-card soft-card">
+    <view class="contact-title">先设置你的联系方式</view>
+    <view class="contact-desc">这里会用来筛选你发布过的求购。</view>
+    <input value="{{inputContact}}" placeholder="微信号或手机号" placeholder-class="placeholder" bindinput="inputContactValue" />
+    <view class="save-btn" bindtap="saveContact">保存</view>
+  </view>
+
+  <view wx:else class="contact-mini soft-card">当前联系方式：{{userContact}}</view>
+
+  <view wx:if="{{isLoading}}" class="empty-card soft-card">正在加载我的求购...</view>
+
+  <view wx:elif="{{wantedItems.length > 0}}" class="wanted-list">
+    <block wx:for="{{wantedItems}}" wx:key="id">
+      <view class="wanted-card soft-card" data-id="{{item.id}}" bindtap="openWantedDetail">
+        <view class="wanted-top"><view class="tag tag-warm">{{item.category}}</view><view class="status-tag">{{item.status}}</view></view>
+        <view class="wanted-title">{{item.title}}</view>
+        <view class="wanted-desc">{{item.description}}</view>
+        <view class="wanted-meta"><text>预算 {{item.budgetText}}</text><text>{{item.urgency}}</text></view>
+      </view>
+    </block>
+  </view>
+
+  <view wx:else class="empty-card soft-card">
+    <view class="empty-icon">📑</view>
+    <view class="empty-title">还没有你的求购</view>
+    <view class="empty-desc">去集市里发布一条求购，后面就能在这里看到。</view>
+  </view>
+</view>

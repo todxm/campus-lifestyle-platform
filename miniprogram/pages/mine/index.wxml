@@ -1,0 +1,25 @@
+<view class="page safe-bottom">
+  <view class="profile-card soft-card">
+    <view class="avatar">站</view>
+    <view>
+      <view class="page-title mine-title">我的小站</view>
+      <view class="mine-desc">先把常用入口放这里，后续再接登录和个人内容。</view>
+    </view>
+  </view>
+
+  <view class="menu-card soft-card">
+    <view
+      class="menu-item"
+      wx:for="{{menuItems}}"
+      wx:key="name"
+      data-name="{{item.name}}"
+      data-action="{{item.action}}"
+      bindtap="tapMenu"
+    >
+      <view>{{item.name}}</view>
+      <view class="menu-arrow">›</view>
+    </view>
+  </view>
+
+  <view class="bottom-note">南航上海路小站，目前由学生个人维护，欢迎反馈建议。</view>
+</view>

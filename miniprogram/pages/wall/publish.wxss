@@ -1,0 +1,128 @@
+.wall-publish-page {
+  padding-top: 34rpx;
+  padding-bottom: calc(150rpx + env(safe-area-inset-bottom));
+}
+
+.publish-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20rpx;
+  min-height: 184rpx;
+  box-sizing: border-box;
+  padding: 34rpx 30rpx;
+  border-radius: 46rpx;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(255, 228, 148, 0.78) 0, rgba(255, 228, 148, 0) 138rpx),
+    linear-gradient(135deg, #fffdf7 0%, #fff3c9 52%, #e8f7de 100%);
+  box-shadow: 0 18rpx 44rpx rgba(98, 81, 42, 0.1);
+}
+
+.publish-hero .page-subtitle {
+  margin-bottom: 0;
+}
+
+.publish-hero-icon {
+  flex: none;
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 32rpx;
+  background: rgba(255, 255, 255, 0.72);
+  font-size: 58rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(5deg);
+}
+
+.notice-card,
+.form-card {
+  margin-top: 24rpx;
+  padding: 30rpx;
+}
+
+.notice-title {
+  color: #101b16;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.notice-desc {
+  margin-top: 10rpx;
+  color: #7b846f;
+  font-size: 24rpx;
+  line-height: 1.55;
+}
+
+.form-item {
+  margin-top: 24rpx;
+}
+
+.form-item:first-child {
+  margin-top: 0;
+}
+
+.label {
+  margin-bottom: 12rpx;
+  color: #203327;
+  font-size: 25rpx;
+  font-weight: 900;
+}
+
+input,
+textarea,
+.picker-value {
+  width: 100%;
+  min-height: 76rpx;
+  box-sizing: border-box;
+  border-radius: 24rpx;
+  background: #f8f3e8;
+  color: #203327;
+  font-size: 27rpx;
+  padding: 0 22rpx;
+}
+
+input,
+.picker-value {
+  display: flex;
+  align-items: center;
+}
+
+textarea {
+  min-height: 190rpx;
+  padding-top: 20rpx;
+  line-height: 1.5;
+}
+
+.picker-value {
+  justify-content: space-between;
+}
+
+.picker-arrow {
+  color: #9aa390;
+  font-size: 38rpx;
+  line-height: 1;
+}
+
+.placeholder {
+  color: #9aa390;
+}
+
+.submit-btn {
+  margin-top: 28rpx;
+  min-height: 88rpx;
+  border-radius: 999rpx;
+  background: #24975f;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 14rpx 30rpx rgba(36, 151, 95, 0.18);
+}
+
+.submit-btn.loading {
+  background: #9ecab2;
+  box-shadow: none;
+}

@@ -1,0 +1,31 @@
+<view class="page safe-bottom wanted-detail-page">
+  <view class="detail-hero">
+    <view>
+      <view class="page-title">求购详情</view>
+      <view class="page-subtitle">看到合适的闲置，后续可以从这里联系同学。</view>
+    </view>
+    <view class="detail-hero-icon">🛒</view>
+  </view>
+
+  <view wx:if="{{isLoading}}" class="empty-card soft-card">正在加载求购详情...</view>
+
+  <view wx:elif="{{wanted}}" class="detail-card soft-card">
+    <view class="detail-top"><view class="tag tag-warm">{{wanted.category}}</view><view class="status-tag">{{wanted.status}}</view></view>
+    <view class="wanted-title">{{wanted.title}}</view>
+    <view class="budget-line">预算：{{wanted.budgetText}}</view>
+    <view class="wanted-desc">{{wanted.description}}</view>
+    <view class="info-list">
+      <view class="info-row"><text>急需程度</text><text>{{wanted.urgency}}</text></view>
+      <view class="info-row"><text>联系方式</text><text>{{wanted.contact}}</text></view>
+      <view class="info-row"><text>发布时间</text><text>{{wanted.createdTime}}</text></view>
+    </view>
+  </view>
+
+  <view wx:if="{{wanted && wanted.status === '求购中'}}" class="action-card soft-card">
+    <view class="action-btn primary" bindtap="showContactTip">我有这个</view>
+    <view class="action-btn ghost" bindtap="markFound">标记已找到</view>
+    <view class="action-btn danger" bindtap="closeWanted">关闭求购</view>
+  </view>
+
+  <view wx:elif="{{wanted}}" class="closed-card soft-card">这条求购当前是“{{wanted.status}}”状态，暂时不显示主要操作。</view>
+</view>

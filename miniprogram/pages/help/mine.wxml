@@ -1,0 +1,76 @@
+<view class="page mine-help-page safe-bottom">
+  <view class="mine-hero">
+    <view>
+      <view class="page-title">我的帮拿</view>
+      <view class="page-subtitle">用本地联系方式临时区分你发布和接过的任务。</view>
+    </view>
+    <view class="mine-hero-icon">📌</view>
+  </view>
+
+  <view class="contact-card soft-card">
+    <view class="card-title">先设置你的联系方式</view>
+    <view class="contact-desc">发布和接单都会用这个联系方式。后续接微信登录后，再改成账号身份。</view>
+    <view class="contact-form">
+      <input
+        value="{{contactInput}}"
+        placeholder="微信号/手机号"
+        placeholder-class="placeholder"
+        bindinput="inputContact"
+      />
+      <view class="save-btn" bindtap="saveContact">保存</view>
+    </view>
+  </view>
+
+  <view class="tab-card">
+    <view
+      class="tab-item {{activeTab === 'published' ? 'active' : ''}}"
+      data-tab="published"
+      bindtap="changeTab"
+    >
+      我发布的
+    </view>
+    <view
+      class="tab-item {{activeTab === 'accepted' ? 'active' : ''}}"
+      data-tab="accepted"
+      bindtap="changeTab"
+    >
+      我接的
+    </view>
+  </view>
+
+  <view wx:if="{{isLoading}}" class="loading-card soft-card">
+    正在加载我的帮拿任务...
+  </view>
+
+  <view wx:if="{{!userContact}}" class="empty-card soft-card">
+    <view class="empty-title">先保存联系方式</view>
+    <view class="empty-desc">保存后，小站会用它在本地筛选你的发布和接单记录。</view>
+  </view>
+
+  <view wx:if="{{userContact && !isLoading && tasks.length === 0}}" class="empty-card soft-card">
+    <view class="empty-title">{{activeTab === 'published' ? '还没有发布记录' : '还没有接单记录'}}</view>
+    <view class="empty-desc">{{activeTab === 'published' ? '可以先发布一个饭点帮拿任务。' : '去帮拿列表看看有没有顺路任务。'}}</view>
+    <view wx:if="{{activeTab === 'published'}}" class="empty-btn" bindtap="goPublish">发布帮拿任务</view>
+  </view>
+
+  <view class="mine-task-list">
+    <view
+      class="mine-task-card soft-card"
+      wx:for="{{tasks}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="openTaskDetail"
+    >
+      <view class="task-top">
+        <view class="task-type">{{item.type}}</view>
+        <view class="task-status {{item.statusClass}}">{{item.status}}</view>
+      </view>
+      <view class="route-text">{{item.route}}</view>
+      <view class="task-meta">
+        <view class="reward">{{item.reward}}</view>
+        <view class="time-slot">{{item.timeSlot}}饭点</view>
+      </view>
+      <view class="task-remark">{{item.remark}}</view>
+    </view>
+  </view>
+</view>
