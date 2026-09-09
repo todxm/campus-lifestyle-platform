@@ -15,6 +15,18 @@
 
 后端仓库：[todxm/campus-lifestyle-platform](https://github.com/todxm/campus-lifestyle-platform)。
 
+## 小程序界面
+
+以下截图来自微信开发者工具中的本地运行界面，展示当前 V0.7 的主要页面。
+
+<p align="center">
+  <img src="docs/screenshots/home.png" width="180" alt="首页" />
+  <img src="docs/screenshots/help.png" width="180" alt="饭点帮拿" />
+  <img src="docs/screenshots/wall.png" width="180" alt="校园墙" />
+  <img src="docs/screenshots/market.png" width="180" alt="集市" />
+  <img src="docs/screenshots/mine.png" width="180" alt="我的" />
+</p>
+
 ## 已有能力
 
 - V0.4 饭点帮拿：查询、发布、接单、完成、取消。
